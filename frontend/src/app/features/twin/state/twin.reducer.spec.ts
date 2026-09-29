@@ -1,0 +1,97 @@
+import { describe, expect, it } from 'vitest';
+
+import { TopologySnapshot } from '../../../core/models/network.models';
+import { TwinActions } from './twin.actions';
+import { initialTwinState, twinFeature } from './twin.reducer';
+import { selectVisibleAssets, selectVisibleTopology } from './twin.selectors';
+
+const topology: TopologySnapshot = {
+  seed: 42,
+  geography: 'Test area',
+  assetCount: 3,
+  routeCount: 2,
+  assets: [
+    {
+      id: 'exchange-1',
+      type: 'exchange',
+      name: 'Central Exchange',
+      position: { latitude: 3.1, longitude: 101.7 },
+      parentId: null,
+      status: 'operational',
+      capacity: 1,
+      attributes: {},
+    },
+    {
+      id: 'cabinet-1',
+      type: 'cabinet',
+      name: 'North Cabinet',
+      position: { latitude: 3.11, longitude: 101.71 },
+      parentId: 'exchange-1',
+      status: 'degraded',
+      capacity: 1,
+      attributes: {},
+    },
+    {
+      id: 'premise-1',
+      type: 'premise',
+      name: 'Synthetic Premise',
+      position: { latitude: 3.12, longitude: 101.72 },
+      parentId: 'cabinet-1',
+      status: 'operational',
+      capacity: 1,
+      attributes: {},
+    },
+  ],
+  routes: [
+    {
+      id: 'route-1',
+      sourceAssetId: 'exchange-1',
+      targetAssetId: 'cabinet-1',
+      path: [],
+      medium: 'fibre',
+    },
+    {
+      id: 'route-2',
+      sourceAssetId: 'cabinet-1',
+      targetAssetId: 'premise-1',
+      path: [],
+      medium: 'fibre',
+    },
+  ],
+};
+
+describe('twin state', () => {
+  it('stores a loaded topology and selects its root asset', () => {
+    const state = twinFeature.reducer(
+      initialTwinState,
+      TwinActions.loadTopologySuccess({ topology }),
+    );
+
+    expect(state.topology).toBe(topology);
+    expect(state.selectedAssetId).toBe('exchange-1');
+    expect(state.loading).toBe(false);
+  });
+
+  it('toggles one asset type without mutating the previous visibility state', () => {
+    const state = twinFeature.reducer(
+      initialTwinState,
+      TwinActions.toggleAssetType({ assetType: 'premise' }),
+    );
+
+    expect(state.visibleAssetTypes.premise).toBe(false);
+    expect(initialTwinState.visibleAssetTypes.premise).toBe(true);
+  });
+
+  it('filters assets and removes routes whose endpoints are hidden', () => {
+    const visibleAssetTypes = {
+      ...initialTwinState.visibleAssetTypes,
+      premise: false,
+    };
+    const assets = selectVisibleAssets.projector(topology, 'north', 'all', visibleAssetTypes);
+    const visible = selectVisibleTopology.projector(topology, assets, true);
+
+    expect(assets.map((asset) => asset.id)).toEqual(['cabinet-1']);
+    expect(visible?.assetCount).toBe(1);
+    expect(visible?.routes).toEqual([]);
+  });
+});

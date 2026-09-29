@@ -1,0 +1,355 @@
+openapi: 3.0.3
+info:
+  title: Network Digital Twin API
+  version: 0.1.0
+  description: Synthetic network assets, topology, and simulation events.
+paths:
+  /api/health/:
+    get:
+      operationId: health_retrieve
+      tags:
+      - health
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  database:
+                    type: string
+                    example: ok
+                required:
+                - status
+                - database
+          description: ''
+  /api/schema/:
+    get:
+      operationId: schema_retrieve
+      description: |-
+        OpenApi3 schema for this API. Format can be selected via content negotiation.
+
+        - YAML: application/vnd.oai.openapi
+        - JSON: application/vnd.oai.openapi+json
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - json
+          - yaml
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - af
+          - ar
+          - ar-dz
+          - ast
+          - az
+          - be
+          - bg
+          - bn
+          - br
+          - bs
+          - ca
+          - ckb
+          - cs
+          - cy
+          - da
+          - de
+          - dsb
+          - el
+          - en
+          - en-au
+          - en-gb
+          - eo
+          - es
+          - es-ar
+          - es-co
+          - es-mx
+          - es-ni
+          - es-ve
+          - et
+          - eu
+          - fa
+          - fi
+          - fr
+          - fy
+          - ga
+          - gd
+          - gl
+          - he
+          - hi
+          - hr
+          - hsb
+          - ht
+          - hu
+          - hy
+          - ia
+          - id
+          - ig
+          - io
+          - is
+          - it
+          - ja
+          - ka
+          - kab
+          - kk
+          - km
+          - kn
+          - ko
+          - ky
+          - lb
+          - lt
+          - lv
+          - mk
+          - ml
+          - mn
+          - mr
+          - ms
+          - my
+          - nb
+          - ne
+          - nl
+          - nn
+          - os
+          - pa
+          - pl
+          - pt
+          - pt-br
+          - ro
+          - ru
+          - sk
+          - sl
+          - sq
+          - sr
+          - sr-latn
+          - sv
+          - sw
+          - ta
+          - te
+          - tg
+          - th
+          - tk
+          - tr
+          - tt
+          - udm
+          - ug
+          - uk
+          - ur
+          - uz
+          - vi
+          - zh-hans
+          - zh-hant
+      tags:
+      - schema
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/vnd.oai.openapi:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/yaml:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/vnd.oai.openapi+json:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/v1/topology/:
+    get:
+      operationId: v1_topology_retrieve
+      summary: Generate a deterministic synthetic network topology
+      parameters:
+      - in: query
+        name: cabinet_count
+        schema:
+          type: integer
+          maximum: 20
+          minimum: 1
+          default: 6
+      - in: query
+        name: distribution_points_per_cabinet
+        schema:
+          type: integer
+          maximum: 12
+          minimum: 1
+          default: 4
+      - in: query
+        name: premises_per_distribution_point
+        schema:
+          type: integer
+          maximum: 24
+          minimum: 1
+          default: 5
+      - in: query
+        name: seed
+        schema:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          default: 20260929
+      tags:
+      - v1
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Topology'
+          description: ''
+components:
+  schemas:
+    Asset:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          $ref: '#/components/schemas/TypeEnum'
+        name:
+          type: string
+        position:
+          $ref: '#/components/schemas/Position'
+        parentId:
+          type: string
+          nullable: true
+        status:
+          $ref: '#/components/schemas/StatusEnum'
+        capacity:
+          type: integer
+          minimum: 0
+        attributes:
+          type: object
+          additionalProperties: {}
+      required:
+      - attributes
+      - capacity
+      - id
+      - name
+      - parentId
+      - position
+      - status
+      - type
+    MediumEnum:
+      enum:
+      - fibre
+      - copper
+      - wireless
+      type: string
+      description: |-
+        * `fibre` - fibre
+        * `copper` - copper
+        * `wireless` - wireless
+    Position:
+      type: object
+      properties:
+        latitude:
+          type: number
+          format: double
+        longitude:
+          type: number
+          format: double
+      required:
+      - latitude
+      - longitude
+    Route:
+      type: object
+      properties:
+        id:
+          type: string
+        sourceAssetId:
+          type: string
+        targetAssetId:
+          type: string
+        path:
+          type: array
+          items:
+            $ref: '#/components/schemas/Position'
+        medium:
+          $ref: '#/components/schemas/MediumEnum'
+      required:
+      - id
+      - medium
+      - path
+      - sourceAssetId
+      - targetAssetId
+    StatusEnum:
+      enum:
+      - operational
+      - degraded
+      - failed
+      - maintenance
+      type: string
+      description: |-
+        * `operational` - operational
+        * `degraded` - degraded
+        * `failed` - failed
+        * `maintenance` - maintenance
+    Topology:
+      type: object
+      properties:
+        seed:
+          type: integer
+        geography:
+          type: string
+        assetCount:
+          type: integer
+        routeCount:
+          type: integer
+        assets:
+          type: array
+          items:
+            $ref: '#/components/schemas/Asset'
+        routes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Route'
+      required:
+      - assetCount
+      - assets
+      - geography
+      - routeCount
+      - routes
+      - seed
+    TypeEnum:
+      enum:
+      - exchange
+      - cabinet
+      - distribution-point
+      - premise
+      type: string
+      description: |-
+        * `exchange` - exchange
+        * `cabinet` - cabinet
+        * `distribution-point` - distribution-point
+        * `premise` - premise
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid

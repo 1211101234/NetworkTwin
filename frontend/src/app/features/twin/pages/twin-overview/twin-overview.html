@@ -1,0 +1,185 @@
+<section class="hero">
+  <div class="hero-copy">
+    <p class="eyebrow">Network Digital Twin</p>
+    <h1>See the network.<br /><span>Test what happens next.</span></h1>
+    <p class="summary">
+      A synthetic-first spatial model for network assets, live faults, downstream impact, and
+      reproducible scenario planning.
+    </p>
+  </div>
+  <aside class="status-card" aria-labelledby="foundation-status">
+    <div class="status-heading">
+      <div>
+        <p class="eyebrow">Environment</p>
+        <h2 id="foundation-status">Foundation status</h2>
+      </div>
+      <span class="status-dot" [class.connected]="apiState() === 'connected'"></span>
+    </div>
+    <dl>
+      <div>
+        <dt>Frontend</dt>
+        <dd>Angular 21 LTS</dd>
+      </div>
+      <div>
+        <dt>API</dt>
+        <dd>{{ apiState() }}</dd>
+      </div>
+      <div>
+        <dt>Geography</dt>
+        <dd>{{ topology()?.geography ?? 'Kuala Lumpur' }}</dd>
+      </div>
+      <div>
+        <dt>Data mode</dt>
+        <dd>Synthetic · seed {{ topology()?.seed ?? '—' }}</dd>
+      </div>
+    </dl>
+    @if (apiState() === 'unavailable') {
+      <p class="api-hint">Start the Django API on port 8000, then check again.</p>
+      <p-button
+        label="Check API"
+        icon="pi pi-refresh"
+        severity="info"
+        (onClick)="checkApi(); retryTopology()"
+      />
+    }
+  </aside>
+</section>
+
+<section class="twin" aria-labelledby="network-heading">
+  <div class="section-heading">
+    <div>
+      <p class="eyebrow">Phase 1 vertical slice</p>
+      <h2 id="network-heading">Synthetic access network</h2>
+      <p>Deterministic exchange-to-premise topology rendered with MapLibre and deck.gl.</p>
+    </div>
+    @if (topology(); as snapshot) {
+      <div class="metrics" aria-label="Topology totals">
+        <span
+          ><strong>{{ snapshot.assetCount }}</strong> assets</span
+        >
+        <span
+          ><strong>{{ snapshot.routeCount }}</strong> routes</span
+        >
+      </div>
+    }
+  </div>
+
+  <div class="controls" aria-label="Network filters and layers">
+    <label class="search-field">
+      <span>Search assets</span>
+      <span class="input-wrap">
+        <i class="pi pi-search" aria-hidden="true"></i>
+        <input [formControl]="queryControl" type="search" placeholder="Name or identifier" />
+      </span>
+    </label>
+
+    <label class="status-field">
+      <span>Status</span>
+      <select [value]="statusFilter()" (change)="setStatusFilter($event)">
+        <option value="all">All statuses</option>
+        <option value="operational">Operational</option>
+        <option value="degraded">Degraded</option>
+        <option value="failed">Failed</option>
+        <option value="maintenance">Maintenance</option>
+      </select>
+    </label>
+
+    <fieldset class="layer-toggles">
+      <legend>Visible layers</legend>
+      <div>
+        @for (item of assetTypes; track item.type) {
+          <label>
+            <input
+              type="checkbox"
+              [checked]="visibleAssetTypes()[item.type]"
+              (change)="toggleAssetType(item.type)"
+            />
+            {{ item.label }}
+          </label>
+        }
+        <label>
+          <input type="checkbox" [checked]="showRoutes()" (change)="toggleRoutes()" />
+          Routes
+        </label>
+      </div>
+    </fieldset>
+
+    @if (hasActiveFilters()) {
+      <button class="reset-button" type="button" (click)="resetFilters()">
+        <i class="pi pi-filter-slash" aria-hidden="true"></i> Reset
+      </button>
+    }
+  </div>
+
+  @if (visibleTopology(); as visible) {
+    <p class="result-count" aria-live="polite">
+      Showing <strong>{{ visible.assetCount }}</strong> of
+      <strong>{{ topology()?.assetCount }}</strong> assets and
+      <strong>{{ visible.routeCount }}</strong> routes.
+    </p>
+  }
+
+  <div class="workspace">
+    <div class="map-panel">
+      @if (visibleTopology(); as snapshot) {
+        <app-network-map [topology]="snapshot" (assetSelected)="selectAsset($event)" />
+      } @else if (topologyError()) {
+        <div class="map-state">
+          <i class="pi pi-exclamation-triangle" aria-hidden="true"></i>
+          <h3>Topology unavailable</h3>
+          <p>{{ topologyError() }}</p>
+          <p-button label="Try again" icon="pi pi-refresh" (onClick)="retryTopology()" />
+        </div>
+      } @else if (topologyLoading()) {
+        <div class="map-state">
+          <i class="pi pi-spin pi-spinner" aria-hidden="true"></i>
+          <p>Generating deterministic topology…</p>
+        </div>
+      }
+      <div class="legend" aria-label="Map legend">
+        <span class="exchange">Exchange</span><span class="cabinet">Cabinet</span
+        ><span class="point">Distribution point</span><span class="premise">Premise</span>
+      </div>
+    </div>
+
+    <aside class="asset-panel" aria-live="polite">
+      @if (selectedAsset(); as asset) {
+        <p class="eyebrow">Selected asset</p>
+        <h3>{{ asset.name }}</h3>
+        <span class="asset-type">{{ asset.type }}</span>
+        <dl>
+          <div>
+            <dt>Status</dt>
+            <dd class="healthy">{{ asset.status }}</dd>
+          </div>
+          <div>
+            <dt>Identifier</dt>
+            <dd>{{ asset.id }}</dd>
+          </div>
+          <div>
+            <dt>Parent</dt>
+            <dd>{{ asset.parentId ?? 'Network root' }}</dd>
+          </div>
+          <div>
+            <dt>Capacity</dt>
+            <dd>{{ asset.capacity }}</dd>
+          </div>
+          <div>
+            <dt>Latitude</dt>
+            <dd>{{ asset.position.latitude }}</dd>
+          </div>
+          <div>
+            <dt>Longitude</dt>
+            <dd>{{ asset.position.longitude }}</dd>
+          </div>
+        </dl>
+      } @else {
+        <div class="empty-selection">
+          <i class="pi pi-map-marker" aria-hidden="true"></i>
+          <h3>Select an asset</h3>
+          <p>Choose a marker to inspect its status, hierarchy, and location.</p>
+        </div>
+      }
+    </aside>
+  </div>
+</section>
