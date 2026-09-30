@@ -16,8 +16,8 @@ export class TwinEffects {
   readonly loadTopology = createEffect(() =>
     this.actions.pipe(
       ofType(TwinActions.loadTopology),
-      switchMap(({ seed }) =>
-        this.topologyService.getTopology({ seed }).pipe(
+      switchMap(({ seed, profile }) =>
+        this.topologyService.getTopology({ seed, profile }).pipe(
           map((topology) => TwinActions.loadTopologySuccess({ topology })),
           catchError((error: unknown) =>
             of(
@@ -34,8 +34,11 @@ export class TwinEffects {
   readonly retryTopology = createEffect(() =>
     this.actions.pipe(
       ofType(TwinActions.retryTopology),
-      withLatestFrom(this.store.select(twinFeature.selectSeed)),
-      map(([, seed]) => TwinActions.loadTopology({ seed })),
+      withLatestFrom(
+        this.store.select(twinFeature.selectSeed),
+        this.store.select(twinFeature.selectProfile),
+      ),
+      map(([, seed, profile]) => TwinActions.loadTopology({ seed, profile })),
     ),
   );
 }

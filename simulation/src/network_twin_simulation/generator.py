@@ -1,6 +1,6 @@
 import math
 import random
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from network_twin_simulation.models import Asset, Position, Route, RouteMedium, Topology
 
@@ -11,7 +11,9 @@ class GeneratorConfig:
     cabinet_count: int = 6
     distribution_points_per_cabinet: int = 4
     premises_per_distribution_point: int = 5
-    centre: Position = Position(latitude=3.15785, longitude=101.71165)
+    centre: Position = field(
+        default_factory=lambda: Position(latitude=3.15785, longitude=101.71165)
+    )
     geography: str = "Kuala Lumpur city centre"
 
 

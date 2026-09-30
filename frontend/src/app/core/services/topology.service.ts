@@ -2,10 +2,11 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { TopologySnapshot } from '../models/network.models';
+import { TopologyProfile, TopologySnapshot } from '../models/network.models';
 
 export interface TopologyRequest {
   readonly seed: number;
+  readonly profile: TopologyProfile;
   readonly cabinetCount?: number;
   readonly distributionPointsPerCabinet?: number;
   readonly premisesPerDistributionPoint?: number;
@@ -16,7 +17,7 @@ export class TopologyService {
   private readonly http = inject(HttpClient);
 
   getTopology(request: TopologyRequest): Observable<TopologySnapshot> {
-    let params = new HttpParams().set('seed', request.seed);
+    let params = new HttpParams().set('seed', request.seed).set('profile', request.profile);
     if (request.cabinetCount !== undefined) {
       params = params.set('cabinet_count', request.cabinetCount);
     }

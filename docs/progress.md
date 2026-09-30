@@ -23,3 +23,25 @@
 1. Generate and benchmark 1k, 5k, and 10k topology profiles.
 2. Add viewport-aware level-of-detail/clustering based on measurements.
 3. Add an initial 3D camera/layer mode and record the Phase 1 performance report.
+
+## 2026-09-30 — Scaled static twin and initial 3D
+
+### Completed
+
+- Named deterministic demo, 1k, 5k, and 10k profiles with a server-enforced 10,500-asset ceiling.
+- Dataset selection in the shared NgRx state and UI.
+- Initial 2D/3D camera switch with extruded 3D asset columns.
+- Zoom-aware level of detail with a maximum of 2,000 concurrently detailed assets.
+- Repeatable backend generation/serialization benchmark command and recorded baseline.
+
+### Evidence
+
+- The 9,997-asset profile generated in 25.1 ms and serialized to 5.00 MiB in 153.3 ms (five-run medians).
+- Backend/API tests, simulation tests, Ruff, Django checks, OpenAPI validation, frontend tests,
+  TypeScript, and formatting pass.
+
+### Next
+
+1. Define the versioned live-event envelope and append-only event log.
+2. Build deterministic fault/recovery replay on top of the static snapshot.
+3. Add a stable scripted browser trace for FPS and interaction-latency measurement.

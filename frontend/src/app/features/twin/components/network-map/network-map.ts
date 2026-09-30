@@ -10,8 +10,8 @@ import {
   input,
   output,
 } from '@angular/core';
-import { PickingInfo, Position as DeckPosition } from '@deck.gl/core';
-import { PathLayer, ScatterplotLayer } from '@deck.gl/layers';
+import { Layer, PickingInfo, Position as DeckPosition } from '@deck.gl/core';
+import { ColumnLayer, PathLayer, ScatterplotLayer } from '@deck.gl/layers';
 import { MapLibreOverlay } from '@deck.gl/maplibre';
 import { Map as MapLibreMap, NavigationControl, setWorkerUrl } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
@@ -21,6 +21,7 @@ import {
   NetworkAsset,
   NetworkRoute,
   TopologySnapshot,
+  TwinViewMode,
 } from '../../../../core/models/network.models';
 
 setWorkerUrl(mapLibreWorkerUrl);
@@ -34,6 +35,7 @@ setWorkerUrl(mapLibreWorkerUrl);
 })
 export class NetworkMap implements AfterViewInit, OnChanges, OnDestroy {
   readonly topology = input.required<TopologySnapshot>();
+  readonly viewMode = input.required<TwinViewMode>();
   readonly assetSelected = output<NetworkAsset>();
 
   @ViewChild('mapContainer', { static: true })
@@ -41,23 +43,30 @@ export class NetworkMap implements AfterViewInit, OnChanges, OnDestroy {
 
   private map?: MapLibreMap;
   private overlay?: MapLibreOverlay;
+  private currentZoom = 13.25;
 
   ngAfterViewInit(): void {
     this.map = new MapLibreMap({
       container: this.mapContainer.nativeElement,
       style: 'https://tiles.openfreemap.org/styles/liberty',
       center: [101.71165, 3.15785],
-      zoom: 12.5,
-      pitch: 35,
+      zoom: this.currentZoom,
+      pitch: this.viewMode() === '3d' ? 55 : 0,
+      bearing: this.viewMode() === '3d' ? -18 : 0,
     });
     this.map.addControl(new NavigationControl(), 'top-right');
     this.overlay = new MapLibreOverlay({ interleaved: true, layers: this.createLayers() });
     this.map.addControl(this.overlay);
+    this.map.on('zoomend', this.handleZoomEnd);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['topology'] && this.overlay) {
+    if ((changes['topology'] || changes['viewMode']) && this.overlay) {
       this.overlay.setProps({ layers: this.createLayers() });
+    }
+    if (changes['viewMode'] && this.map) {
+      const is3d = this.viewMode() === '3d';
+      this.map.easeTo({ pitch: is3d ? 55 : 0, bearing: is3d ? -18 : 0, duration: 450 });
     }
   }
 
@@ -65,22 +74,53 @@ export class NetworkMap implements AfterViewInit, OnChanges, OnDestroy {
     this.map?.remove();
   }
 
-  private createLayers(): [PathLayer<NetworkRoute>, ScatterplotLayer<NetworkAsset>] {
+  private readonly handleZoomEnd = (): void => {
+    this.currentZoom = this.map?.getZoom() ?? this.currentZoom;
+    this.overlay?.setProps({ layers: this.createLayers() });
+  };
+
+  private createLayers(): Layer[] {
     const topology = this.topology();
+    const assets = this.assetsForZoom(topology.assets);
+    const visibleIds = new Set(assets.map((asset) => asset.id));
+    const routes = topology.routes.filter(
+      (route) => visibleIds.has(route.sourceAssetId) && visibleIds.has(route.targetAssetId),
+    );
+    const routeLayer = new PathLayer<NetworkRoute>({
+      id: 'network-routes',
+      data: routes,
+      getPath: (route): DeckPosition[] =>
+        route.path.map(({ longitude, latitude }) => [longitude, latitude]),
+      getColor: [45, 212, 191, 145],
+      getWidth: 2,
+      widthMinPixels: 1,
+      antialiasing: true,
+    });
+    if (this.viewMode() === '3d') {
+      return [
+        routeLayer,
+        new ColumnLayer<NetworkAsset>({
+          id: 'network-assets-3d',
+          data: assets,
+          diskResolution: 12,
+          extruded: true,
+          getPosition: (asset) => [asset.position.longitude, asset.position.latitude],
+          radius: 42,
+          getElevation: (asset) => this.elevationFor(asset),
+          getFillColor: (asset) => this.colourFor(asset),
+          pickable: true,
+          autoHighlight: true,
+          onClick: ({ object }: PickingInfo<NetworkAsset>) => {
+            if (object) this.assetSelected.emit(object);
+          },
+        }),
+      ];
+    }
     return [
-      new PathLayer<NetworkRoute>({
-        id: 'network-routes',
-        data: topology.routes,
-        getPath: (route): DeckPosition[] =>
-          route.path.map(({ longitude, latitude }) => [longitude, latitude]),
-        getColor: [45, 212, 191, 145],
-        getWidth: 2,
-        widthMinPixels: 1,
-        antialiasing: true,
-      }),
+      routeLayer,
       new ScatterplotLayer<NetworkAsset>({
         id: 'network-assets',
-        data: topology.assets,
+        data: assets,
         getPosition: (asset) => [asset.position.longitude, asset.position.latitude],
         getRadius: (asset) => this.radiusFor(asset),
         getFillColor: (asset) => this.colourFor(asset),
@@ -97,6 +137,34 @@ export class NetworkMap implements AfterViewInit, OnChanges, OnDestroy {
         },
       }),
     ];
+  }
+
+  private assetsForZoom(assets: readonly NetworkAsset[]): readonly NetworkAsset[] {
+    if (this.currentZoom < 11.5) {
+      return assets.filter((asset) => asset.type === 'exchange' || asset.type === 'cabinet');
+    }
+    if (this.currentZoom < 13) {
+      return assets.filter((asset) => asset.type !== 'premise');
+    }
+    if (assets.length <= 2_000) return assets;
+
+    const infrastructure = assets.filter((asset) => asset.type !== 'premise');
+    const premises = assets.filter((asset) => asset.type === 'premise');
+    const availablePremiseSlots = Math.max(0, 2_000 - infrastructure.length);
+    const sampledPremises = Array.from({ length: availablePremiseSlots }, (_, index) =>
+      premises.at(Math.floor((index * premises.length) / availablePremiseSlots)),
+    ).filter((asset): asset is NetworkAsset => asset !== undefined);
+    return [...infrastructure, ...sampledPremises];
+  }
+
+  private elevationFor(asset: NetworkAsset): number {
+    const elevationByType: Record<NetworkAsset['type'], number> = {
+      exchange: 260,
+      cabinet: 160,
+      'distribution-point': 90,
+      premise: 35,
+    };
+    return elevationByType[asset.type];
   }
 
   private radiusFor(asset: NetworkAsset): number {

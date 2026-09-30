@@ -4,7 +4,9 @@ import {
   AssetId,
   AssetStatus,
   AssetType,
+  TopologyProfile,
   TopologySnapshot,
+  TwinViewMode,
 } from '../../../core/models/network.models';
 import { TwinActions } from './twin.actions';
 
@@ -13,6 +15,8 @@ export interface TwinState {
   readonly loading: boolean;
   readonly error: string | null;
   readonly seed: number;
+  readonly profile: TopologyProfile;
+  readonly viewMode: TwinViewMode;
   readonly selectedAssetId: AssetId | null;
   readonly query: string;
   readonly status: AssetStatus | 'all';
@@ -32,6 +36,8 @@ export const initialTwinState: TwinState = {
   loading: false,
   error: null,
   seed: 20260929,
+  profile: 'demo',
+  viewMode: '2d',
   selectedAssetId: null,
   query: '',
   status: 'all',
@@ -43,9 +49,10 @@ export const twinFeature = createFeature({
   name: 'twin',
   reducer: createReducer(
     initialTwinState,
-    on(TwinActions.loadTopology, (state, { seed }): TwinState => ({
+    on(TwinActions.loadTopology, (state, { seed, profile }): TwinState => ({
       ...state,
       seed,
+      profile,
       loading: true,
       error: null,
     })),
@@ -78,6 +85,7 @@ export const twinFeature = createFeature({
       ...state,
       showRoutes: !state.showRoutes,
     })),
+    on(TwinActions.setViewMode, (state, { viewMode }): TwinState => ({ ...state, viewMode })),
     on(TwinActions.resetFilters, (state): TwinState => ({
       ...state,
       query: '',

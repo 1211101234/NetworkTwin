@@ -5,7 +5,13 @@ import { Store } from '@ngrx/store';
 import { ButtonModule } from 'primeng/button';
 import { catchError, debounceTime, distinctUntilChanged, of } from 'rxjs';
 
-import { AssetStatus, AssetType, NetworkAsset } from '../../../../core/models/network.models';
+import {
+  AssetStatus,
+  AssetType,
+  NetworkAsset,
+  TopologyProfile,
+  TwinViewMode,
+} from '../../../../core/models/network.models';
 import { HealthService } from '../../../../core/services/health.service';
 import { NetworkMap } from '../../components/network-map/network-map';
 import { TwinActions } from '../../state/twin.actions';
@@ -41,6 +47,8 @@ export class TwinOverview {
   );
   protected readonly statusFilter = this.store.selectSignal(twinFeature.selectStatus);
   protected readonly showRoutes = this.store.selectSignal(twinFeature.selectShowRoutes);
+  protected readonly profile = this.store.selectSignal(twinFeature.selectProfile);
+  protected readonly viewMode = this.store.selectSignal(twinFeature.selectViewMode);
   protected readonly hasActiveFilters = this.store.selectSignal(selectHasActiveFilters);
   protected readonly queryControl = new FormControl('', { nonNullable: true });
   protected readonly assetTypes: readonly { type: AssetType; label: string }[] = [
@@ -69,8 +77,8 @@ export class TwinOverview {
       .subscribe((health) => this.apiState.set(health ? 'connected' : 'unavailable'));
   }
 
-  protected loadTopology(seed = 20260929): void {
-    this.store.dispatch(TwinActions.loadTopology({ seed }));
+  protected loadTopology(seed = 20260929, profile: TopologyProfile = 'demo'): void {
+    this.store.dispatch(TwinActions.loadTopology({ seed, profile }));
   }
 
   protected retryTopology(): void {
@@ -92,6 +100,15 @@ export class TwinOverview {
   protected setStatusFilter(event: Event): void {
     const status = (event.target as HTMLSelectElement).value as AssetStatus | 'all';
     this.store.dispatch(TwinActions.setStatusFilter({ status }));
+  }
+
+  protected setProfile(event: Event): void {
+    const profile = (event.target as HTMLSelectElement).value as TopologyProfile;
+    this.loadTopology(20260929, profile);
+  }
+
+  protected setViewMode(viewMode: TwinViewMode): void {
+    this.store.dispatch(TwinActions.setViewMode({ viewMode }));
   }
 
   protected resetFilters(): void {

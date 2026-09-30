@@ -1,5 +1,5 @@
 from drf_spectacular.utils import extend_schema
-from network_twin_simulation import GeneratorConfig, generate_topology
+from network_twin_simulation import generate_topology
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -16,15 +16,7 @@ class TopologyView(APIView):
     def get(self, request: Request) -> Response:
         query = TopologyQuerySerializer(data=request.query_params)
         query.is_valid(raise_exception=True)
-        values = query.validated_data
-        topology = generate_topology(
-            GeneratorConfig(
-                seed=values["seed"],
-                cabinet_count=values["cabinet_count"],
-                distribution_points_per_cabinet=values["distribution_points_per_cabinet"],
-                premises_per_distribution_point=values["premises_per_distribution_point"],
-            )
-        )
+        topology = generate_topology(query.topology_config())
         response_data = {
             **topology.as_dict(),
             "asset_count": len(topology.assets),

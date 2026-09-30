@@ -137,7 +137,7 @@ dd {
   border-radius: 1rem;
   display: grid;
   gap: 1rem;
-  grid-template-columns: minmax(13rem, 1fr) 11rem minmax(20rem, 2fr) auto;
+  grid-template-columns: minmax(13rem, 1fr) 11rem 11rem minmax(20rem, 2fr) auto auto;
   margin-bottom: 0.75rem;
   padding: 1rem;
 }
@@ -240,6 +240,28 @@ select:focus {
 .reset-button:hover {
   border-color: var(--accent);
   color: white;
+}
+.view-switch {
+  background: #091528;
+  border: 1px solid rgb(148 163 184 / 25%);
+  border-radius: 0.65rem;
+  display: flex;
+  height: 2.6rem;
+  overflow: hidden;
+}
+.view-switch button {
+  background: transparent;
+  border: 0;
+  color: var(--muted-text);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0 0.75rem;
+}
+.view-switch button.active {
+  background: var(--accent);
+  color: #06111f;
 }
 .result-count {
   color: var(--muted-text);

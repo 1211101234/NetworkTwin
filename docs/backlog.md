@@ -13,9 +13,9 @@ Status: `DONE`, `ACTIVE`, `NEXT`, `LATER`, `GATED`.
 | ST-04 | Search and asset type/status filters | 1 | Must | DONE | Keyboard-accessible controls update visible set |
 | ST-05 | Layer toggles and persistent legend | 1 | Should | DONE | Each layer changes independently within budget |
 | ST-06 | Shared topology/selection/filter NgRx state | 1 | Should | DONE | State is shared by map, controls, and detail panel |
-| ST-07 | 1k/5k/10k performance fixtures and report | 1 | Must | NEXT | Measurements recorded against budgets |
-| ST-08 | 3D layer and camera mode | 1 | Must | LATER | Distinct assets/routes visible in 3D |
-| LIVE-01 | Versioned event envelope and event log | 2 | Must | LATER | Schema and ordering tests pass |
+| ST-07 | 1k/5k/10k performance fixtures and report | 1 | Must | DONE | Measurements recorded against budgets |
+| ST-08 | 3D layer and camera mode | 1 | Must | DONE | Distinct assets/routes visible in 3D |
+| LIVE-01 | Versioned event envelope and event log | 2 | Must | NEXT | Schema and ordering tests pass |
 | LIVE-02 | Deterministic fault/recovery simulator | 2 | Must | LATER | Same seed produces same ordered log |
 | LIVE-03 | Resumable SSE transport | 2 | Must | LATER | Reconnect test proves no loss/duplication |
 | LIVE-04 | Technician movement | 2 | Should | LATER | Position follows replay clock |

@@ -74,6 +74,16 @@
     </label>
 
     <label class="status-field">
+      <span>Dataset</span>
+      <select [value]="profile()" (change)="setProfile($event)">
+        <option value="demo">Demo · 151</option>
+        <option value="1k">Performance · 1k</option>
+        <option value="5k">Performance · 5k</option>
+        <option value="10k">Performance · 10k</option>
+      </select>
+    </label>
+
+    <label class="status-field">
       <span>Status</span>
       <select [value]="statusFilter()" (change)="setStatusFilter($event)">
         <option value="all">All statuses</option>
@@ -109,6 +119,15 @@
         <i class="pi pi-filter-slash" aria-hidden="true"></i> Reset
       </button>
     }
+
+    <div class="view-switch" aria-label="Map view">
+      <button type="button" [class.active]="viewMode() === '2d'" (click)="setViewMode('2d')">
+        2D
+      </button>
+      <button type="button" [class.active]="viewMode() === '3d'" (click)="setViewMode('3d')">
+        3D
+      </button>
+    </div>
   </div>
 
   @if (visibleTopology(); as visible) {
@@ -122,7 +141,11 @@
   <div class="workspace">
     <div class="map-panel">
       @if (visibleTopology(); as snapshot) {
-        <app-network-map [topology]="snapshot" (assetSelected)="selectAsset($event)" />
+        <app-network-map
+          [topology]="snapshot"
+          [viewMode]="viewMode()"
+          (assetSelected)="selectAsset($event)"
+        />
       } @else if (topologyError()) {
         <div class="map-state">
           <i class="pi pi-exclamation-triangle" aria-hidden="true"></i>

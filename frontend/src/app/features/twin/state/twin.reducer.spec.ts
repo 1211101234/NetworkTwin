@@ -82,6 +82,21 @@ describe('twin state', () => {
     expect(initialTwinState.visibleAssetTypes.premise).toBe(true);
   });
 
+  it('loads the selected performance profile and switches view mode', () => {
+    const loadingState = twinFeature.reducer(
+      initialTwinState,
+      TwinActions.loadTopology({ seed: 42, profile: '5k' }),
+    );
+    const viewState = twinFeature.reducer(
+      loadingState,
+      TwinActions.setViewMode({ viewMode: '3d' }),
+    );
+
+    expect(viewState.profile).toBe('5k');
+    expect(viewState.seed).toBe(42);
+    expect(viewState.viewMode).toBe('3d');
+  });
+
   it('filters assets and removes routes whose endpoints are hidden', () => {
     const visibleAssetTypes = {
       ...initialTwinState.visibleAssetTypes,
