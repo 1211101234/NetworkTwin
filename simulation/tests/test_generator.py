@@ -2,7 +2,9 @@ from network_twin_simulation import (
     GeneratorConfig,
     ProfileName,
     config_for_profile,
+    generate_event_log,
     generate_topology,
+    replay_asset_statuses,
 )
 
 
@@ -38,3 +40,18 @@ def test_named_profiles_produce_expected_scale() -> None:
         topology = generate_topology(config_for_profile(profile))
         assert len(topology.assets) == expected_count
         assert len(topology.routes) == expected_count - 1
+
+
+def test_event_log_is_deterministic_ordered_and_replayable() -> None:
+    topology = generate_topology(config_for_profile("demo", seed=42))
+
+    first = generate_event_log(topology, seed=42)
+    second = generate_event_log(topology, seed=42)
+
+    assert first == second
+    assert [event.sequence for event in first] == list(range(1, len(first) + 1))
+    assert [event.simulation_time_seconds for event in first] == sorted(
+        event.simulation_time_seconds for event in first
+    )
+    assert replay_asset_statuses(topology, first) == replay_asset_statuses(topology, second)
+    assert all(status == "operational" for status in replay_asset_statuses(topology, first).values())

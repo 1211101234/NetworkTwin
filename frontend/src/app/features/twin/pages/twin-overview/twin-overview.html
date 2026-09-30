@@ -138,6 +138,44 @@
     </p>
   }
 
+  <section class="playback" aria-labelledby="playback-heading">
+    <div>
+      <p class="eyebrow">Deterministic replay</p>
+      <h3 id="playback-heading">Live event timeline</h3>
+      <p>
+        Simulation time <strong>{{ simulationTime() }}s</strong> · Event
+        <strong>{{ playbackCursor() }}/{{ eventLog().length }}</strong>
+      </p>
+    </div>
+    <div class="playback-actions">
+      <button type="button" (click)="togglePlayback()" [disabled]="eventLog().length === 0">
+        <i class="pi" [class.pi-play]="!playing()" [class.pi-pause]="playing()"></i>
+        {{ playing() ? 'Pause' : 'Play' }}
+      </button>
+      <button type="button" (click)="resetPlayback()"><i class="pi pi-replay"></i> Reset</button>
+      <label>
+        <span>Speed</span>
+        <select [value]="playbackSpeed()" (change)="setPlaybackSpeed($event)">
+          <option value="0.5">0.5×</option>
+          <option value="1">1×</option>
+          <option value="2">2×</option>
+        </select>
+      </label>
+    </div>
+    <ol class="event-feed" aria-live="polite">
+      @for (event of appliedEvents().slice(0, 3); track event.id) {
+        <li>
+          <span class="event-time">{{ event.simulationTimeSeconds }}s</span>
+          <span
+            ><strong>{{ event.payload.assetId }}</strong> → {{ event.payload.status }}</span
+          >
+        </li>
+      } @empty {
+        <li class="event-empty">Press Play to run the seeded fault and recovery sequence.</li>
+      }
+    </ol>
+  </section>
+
   <div class="workspace">
     <div class="map-panel">
       @if (visibleTopology(); as snapshot) {

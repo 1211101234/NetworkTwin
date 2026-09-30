@@ -109,3 +109,23 @@ class TopologySerializer(serializers.Serializer):
     routeCount = serializers.IntegerField(source="route_count")  # noqa: N815
     assets = AssetSerializer(many=True)
     routes = RouteSerializer(many=True)
+
+
+class AssetStatusPayloadSerializer(serializers.Serializer):
+    assetId = serializers.CharField()  # noqa: N815
+    previousStatus = serializers.ChoiceField(  # noqa: N815
+        choices=("operational", "degraded", "failed", "maintenance")
+    )
+    status = serializers.ChoiceField(
+        choices=("operational", "degraded", "failed", "maintenance")
+    )
+    reason = serializers.CharField()
+
+
+class SimulationEventSerializer(serializers.Serializer):
+    id = serializers.CharField()
+    schemaVersion = serializers.CharField()  # noqa: N815
+    sequence = serializers.IntegerField(min_value=1)
+    simulationTimeSeconds = serializers.IntegerField(min_value=0)  # noqa: N815
+    type = serializers.ChoiceField(choices=("asset-status-changed",))
+    payload = AssetStatusPayloadSerializer()

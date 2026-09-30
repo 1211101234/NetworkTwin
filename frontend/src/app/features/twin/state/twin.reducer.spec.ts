@@ -97,6 +97,40 @@ describe('twin state', () => {
     expect(viewState.viewMode).toBe('3d');
   });
 
+  it('applies and resets a deterministic status event', () => {
+    const loadedState = twinFeature.reducer(
+      initialTwinState,
+      TwinActions.loadTopologySuccess({ topology }),
+    );
+    const eventState = twinFeature.reducer(
+      loadedState,
+      TwinActions.loadEventLogSuccess({
+        events: [
+          {
+            id: 'evt-000001',
+            schemaVersion: '1.0',
+            sequence: 1,
+            simulationTimeSeconds: 15,
+            type: 'asset-status-changed',
+            payload: {
+              assetId: 'cabinet-1',
+              previousStatus: 'degraded',
+              status: 'failed',
+              reason: 'test',
+            },
+          },
+        ],
+      }),
+    );
+    const appliedState = twinFeature.reducer(eventState, TwinActions.playbackTick());
+    const resetState = twinFeature.reducer(appliedState, TwinActions.resetPlayback());
+
+    expect(appliedState.topology?.assets[1]?.status).toBe('failed');
+    expect(appliedState.simulationTimeSeconds).toBe(15);
+    expect(resetState.topology?.assets[1]?.status).toBe('degraded');
+    expect(resetState.playbackCursor).toBe(0);
+  });
+
   it('filters assets and removes routes whose endpoints are hidden', () => {
     const visibleAssetTypes = {
       ...initialTwinState.visibleAssetTypes,

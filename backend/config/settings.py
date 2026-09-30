@@ -141,4 +141,7 @@ SPECTACULAR_SETTINGS = {
     "TITLE": "Network Digital Twin API",
     "DESCRIPTION": "Synthetic network assets, topology, and simulation events.",
     "VERSION": "0.1.0",
+    "ENUM_NAME_OVERRIDES": {
+        "AssetStatusEnum": ["operational", "degraded", "failed", "maintenance"],
+    },
 }

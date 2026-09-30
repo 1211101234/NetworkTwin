@@ -45,3 +45,27 @@
 1. Define the versioned live-event envelope and append-only event log.
 2. Build deterministic fault/recovery replay on top of the static snapshot.
 3. Add a stable scripted browser trace for FPS and interaction-latency measurement.
+
+## 2026-09-30 — Deterministic live-event replay
+
+### Completed
+
+- Version 1.0 event envelope with stable identifiers, sequence numbers, simulation time, event type,
+  and typed status-change payloads.
+- Seeded fault and recovery event generation with deterministic ordering and replay results.
+- JSON event-log endpoint plus SSE transport with event IDs, heartbeat, retry guidance, and resume by
+  sequence or `Last-Event-ID`.
+- NgRx playback state with play, pause, reset, 0.5×/1×/2× speed, simulation clock, event feed, and
+  status changes applied to the shared topology.
+
+### Evidence
+
+- Event generation, ordering, replay, API serialization, and SSE resume tests pass.
+- Backend: 6 tests; simulator: 4 tests; frontend: 7 tests.
+- Ruff, Django checks, OpenAPI validation, Prettier, and TypeScript checks pass.
+
+### Next
+
+1. Add technician entities, deterministic movement events, and a technician map layer.
+2. Expand the replay timeline with direct seeking and scripted HOU storyline presets.
+3. Add browser reconnect integration coverage around the SSE client lifecycle.

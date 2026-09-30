@@ -9,6 +9,7 @@ import {
   AssetStatus,
   AssetType,
   NetworkAsset,
+  PlaybackSpeed,
   TopologyProfile,
   TwinViewMode,
 } from '../../../../core/models/network.models';
@@ -18,6 +19,7 @@ import { TwinActions } from '../../state/twin.actions';
 import { twinFeature } from '../../state/twin.reducer';
 import {
   selectHasActiveFilters,
+  selectAppliedEvents,
   selectSelectedAsset,
   selectVisibleTopology,
 } from '../../state/twin.selectors';
@@ -50,6 +52,14 @@ export class TwinOverview {
   protected readonly profile = this.store.selectSignal(twinFeature.selectProfile);
   protected readonly viewMode = this.store.selectSignal(twinFeature.selectViewMode);
   protected readonly hasActiveFilters = this.store.selectSignal(selectHasActiveFilters);
+  protected readonly eventLog = this.store.selectSignal(twinFeature.selectEventLog);
+  protected readonly appliedEvents = this.store.selectSignal(selectAppliedEvents);
+  protected readonly playbackCursor = this.store.selectSignal(twinFeature.selectPlaybackCursor);
+  protected readonly playbackSpeed = this.store.selectSignal(twinFeature.selectPlaybackSpeed);
+  protected readonly playing = this.store.selectSignal(twinFeature.selectPlaying);
+  protected readonly simulationTime = this.store.selectSignal(
+    twinFeature.selectSimulationTimeSeconds,
+  );
   protected readonly queryControl = new FormControl('', { nonNullable: true });
   protected readonly assetTypes: readonly { type: AssetType; label: string }[] = [
     { type: 'exchange', label: 'Exchanges' },
@@ -109,6 +119,19 @@ export class TwinOverview {
 
   protected setViewMode(viewMode: TwinViewMode): void {
     this.store.dispatch(TwinActions.setViewMode({ viewMode }));
+  }
+
+  protected togglePlayback(): void {
+    this.store.dispatch(TwinActions.togglePlayback());
+  }
+
+  protected resetPlayback(): void {
+    this.store.dispatch(TwinActions.resetPlayback());
+  }
+
+  protected setPlaybackSpeed(event: Event): void {
+    const speed = Number((event.target as HTMLSelectElement).value) as PlaybackSpeed;
+    this.store.dispatch(TwinActions.setPlaybackSpeed({ speed }));
   }
 
   protected resetFilters(): void {

@@ -15,11 +15,11 @@ Status: `DONE`, `ACTIVE`, `NEXT`, `LATER`, `GATED`.
 | ST-06 | Shared topology/selection/filter NgRx state | 1 | Should | DONE | State is shared by map, controls, and detail panel |
 | ST-07 | 1k/5k/10k performance fixtures and report | 1 | Must | DONE | Measurements recorded against budgets |
 | ST-08 | 3D layer and camera mode | 1 | Must | DONE | Distinct assets/routes visible in 3D |
-| LIVE-01 | Versioned event envelope and event log | 2 | Must | NEXT | Schema and ordering tests pass |
-| LIVE-02 | Deterministic fault/recovery simulator | 2 | Must | LATER | Same seed produces same ordered log |
-| LIVE-03 | Resumable SSE transport | 2 | Must | LATER | Reconnect test proves no loss/duplication |
+| LIVE-01 | Versioned event envelope and event log | 2 | Must | DONE | Schema and ordering tests pass |
+| LIVE-02 | Deterministic fault/recovery simulator | 2 | Must | DONE | Same seed produces same ordered log |
+| LIVE-03 | Resumable SSE transport | 2 | Must | DONE | Reconnect test proves no loss/duplication |
 | LIVE-04 | Technician movement | 2 | Should | LATER | Position follows replay clock |
-| LIVE-05 | Timeline, speed, pause, and rewind | 2 | Should | LATER | Controls reproduce expected state |
+| LIVE-05 | Timeline, speed, pause, and rewind | 2 | Should | DONE | Controls reproduce expected state |
 | SCN-01 | Dependency graph and impact propagation | 3 | Must | LATER | Golden fixture results pass |
 | SCN-02 | Flood scenario | 3 | Must | LATER | Seeded scenario replay and impact report |
 | SCN-03 | Cabinet cluster failure | 3 | Must | LATER | Seeded scenario replay and impact report |

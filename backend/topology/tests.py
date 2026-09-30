@@ -42,3 +42,29 @@ class TopologyViewTests(APITestCase):
         self.assertEqual(response.json()["seed"], 42)
         self.assertEqual(response.json()["assetCount"], 1_001)
         self.assertEqual(response.json()["routeCount"], 1_000)
+
+
+class SimulationEventViewTests(APITestCase):
+    def test_event_log_is_ordered_and_reproducible(self) -> None:
+        query = {"profile": "demo", "seed": 42}
+
+        first = self.client.get(reverse("event-log"), query)
+        second = self.client.get(reverse("event-log"), query)
+
+        self.assertEqual(first.status_code, status.HTTP_200_OK)
+        self.assertEqual(first.json(), second.json())
+        self.assertEqual([event["sequence"] for event in first.json()], [1, 2, 3, 4, 5, 6])
+        self.assertTrue(all(event["schemaVersion"] == "1.0" for event in first.json()))
+
+    def test_event_stream_resumes_without_duplicates(self) -> None:
+        response = self.client.get(
+            reverse("event-stream"),
+            {"profile": "demo", "seed": 42, "after": 3},
+        )
+        body = b"".join(response.streaming_content).decode()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertNotIn("id: 3\n", body)
+        self.assertIn("id: 4\n", body)
+        self.assertEqual(body.count("event: network-event"), 3)
+        self.assertIn(": heartbeat", body)

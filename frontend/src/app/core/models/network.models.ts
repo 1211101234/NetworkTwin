@@ -37,3 +37,21 @@ export interface TopologySnapshot {
   readonly assets: readonly NetworkAsset[];
   readonly routes: readonly NetworkRoute[];
 }
+
+export interface AssetStatusEventPayload {
+  readonly assetId: AssetId;
+  readonly previousStatus: AssetStatus;
+  readonly status: AssetStatus;
+  readonly reason: string;
+}
+
+export interface SimulationEvent {
+  readonly id: string;
+  readonly schemaVersion: '1.0';
+  readonly sequence: number;
+  readonly simulationTimeSeconds: number;
+  readonly type: 'asset-status-changed';
+  readonly payload: AssetStatusEventPayload;
+}
+
+export type PlaybackSpeed = 0.5 | 1 | 2;

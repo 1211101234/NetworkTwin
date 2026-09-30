@@ -62,3 +62,9 @@ export const selectHasActiveFilters = createSelector(
     !showRoutes ||
     Object.values(visibleAssetTypes).some((visible) => !visible),
 );
+
+export const selectAppliedEvents = createSelector(
+  twinFeature.selectEventLog,
+  twinFeature.selectPlaybackCursor,
+  (events, cursor) => events.slice(0, cursor).reverse(),
+);
