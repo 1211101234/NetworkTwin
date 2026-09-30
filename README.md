@@ -2,6 +2,9 @@
 
 A standalone, synthetic-first telecom network twin for spatial awareness, live-event simulation, impact analysis, and scenario planning.
 
+**Project tracking:** open [`ROADMAP.md`](ROADMAP.md) in VS Code for the current completion
+dashboard, active work, and links to detailed evidence.
+
 ## Repository layout
 
 - `frontend/` — Angular, PrimeNG, NgRx, MapLibre, and deck.gl client

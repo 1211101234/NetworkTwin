@@ -24,9 +24,9 @@
 
 | Phase | Indicative dates | Required outcome | Exit evidence | Status |
 | --- | --- | --- | --- | --- |
-| 0 — Foundations | 29 Sep–16 Oct 2026 | Runnable skeleton, decisions, contracts, budgets | Clean builds, health/API docs, architecture review | In progress |
-| 1 — Static Twin | 19 Oct–11 Dec 2026 | Synthetic topology in interactive 2D and initial 3D | Mini-demo and measured performance report | Started early |
-| 2 — Live Twin | 14 Dec 2026–22 Jan 2027 | Replayable faults, recoveries, and technician movement | HOU demo rehearsal passes twice | Not started |
+| 0 — Foundations | 29 Sep–16 Oct 2026 | Runnable skeleton, decisions, contracts, budgets | Clean builds, health/API docs, architecture review | 67% — CI remains |
+| 1 — Static Twin | 19 Oct–11 Dec 2026 | Synthetic topology in interactive 2D and initial 3D | Mini-demo and measured performance report | Complete early |
+| 2 — Live Twin | 14 Dec 2026–22 Jan 2027 | Replayable faults, recoveries, and technician movement | HOU demo rehearsal passes twice | 80% — technician movement remains |
 | 3 — Scenario Engine | 25 Jan–19 Mar 2027 | Impact propagation and three headline scenarios | Seeded expected-result tests and comparison demo | Not started |
 | 4 — Integration Readiness | 22 Mar–16 Apr 2027 | Approved adapter and security design | Integration specification review | Not started |
 | 5 — Extensions | Proposal-dependent | Individually approved pilots | Separate pilot gate per extension | Gated |
