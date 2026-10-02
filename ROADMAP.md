@@ -2,30 +2,31 @@
 
 > Open this file in VS Code and use **Open Preview** (`⌘⇧V`) for the dashboard view.
 >
-> Last updated: 2 October 2026 · Core delivery: **15 of 22 items complete (68%)**
+> Last updated: 3 October 2026 · Core delivery: **17 of 22 items complete (77%)**
 
 ## At a glance
 
 | Phase                     |   Progress | Status      | Current outcome                                          |
 | ------------------------- | ---------: | ----------- | -------------------------------------------------------- |
-| 0 — Foundations           |  2/3 · 67% | Active      | CI added; first clean GitHub run remains                 |
+| 0 — Foundations           | 3/3 · 100% | Complete    | Full GitHub CI pipeline verified                         |
 | 1 — Static Twin           | 8/8 · 100% | Complete    | 2D/3D topology verified at 9,997 assets                  |
 | 2 — Live Twin             | 5/5 · 100% | Complete    | Faults, recovery, and technicians share one replay clock |
-| 3 — Scenario Engine       |   0/4 · 0% | Planned     | Dependency graph and impact propagation                  |
+| 3 — Scenario Engine       |  1/4 · 25% | Active      | Dependency impact complete; flood scenario next          |
 | 4 — Integration Readiness |   0/2 · 0% | Planned     | Adapter contracts and security plan                      |
 | 5 — Optional Extensions   |      Gated | Not counted | Separate approval required for each pilot                |
 
 ```text
-Core roadmap  [██████████████░░░░░░] 68%
-Current phase [████████████████████] 100%
+Core roadmap  [███████████████░░░░░] 77%
+Current phase [█████░░░░░░░░░░░░░░░] 25%
 ```
 
 ## Current focus
 
-- [ ] **FND-03:** Verify the new GitHub CI workflow on its first remote run.
+- [x] **FND-03:** GitHub CI passes on the merged authentication/live-twin delivery.
 - [x] Add registration, authentication/session, protected routing, and the role foundation.
 - [ ] Confirm the first persistent CRUD entity; network assets are recommended.
-- [ ] **SCN-01:** Validate the dependency graph and downstream impact propagation.
+- [x] **SCN-01:** Deterministic dependency graph and downstream impact propagation.
+- [ ] **SCN-02:** Add the seeded geographic flood scenario — next.
 
 ## Completed
 
@@ -33,7 +34,7 @@ Current phase [████████████████████] 100
 
 - [x] Runnable Angular and Django repository.
 - [x] Architecture decisions, API schema, dependency register, licences, and budgets.
-- [ ] GitHub CI pipeline added; clean remote run pending.
+- [x] GitHub CI pipeline with clean production build verification.
 
 ### Phase 1 — Static Twin
 
@@ -71,7 +72,7 @@ included in the 22-item core percentage until their scope is approved.
 
 ### Phase 3 — Scenario Engine
 
-- [ ] Dependency graph and downstream impact propagation.
+- [x] Dependency graph and downstream impact propagation.
 - [ ] Seeded flood scenario.
 - [ ] Seeded cabinet-cluster failure scenario.
 - [ ] Planned-outage or placement comparison.
@@ -89,13 +90,14 @@ included in the 22-item core percentage until their scope is approved.
 
 ## Latest verified evidence
 
-- Backend: **14 tests passed** (plus 3 password-validation subtests).
-- Simulator: **5 tests passed**.
-- Frontend: **14 tests passed**.
-- Ruff, TypeScript, Django tests, and OpenAPI validation pass. The production Angular build was not
-  re-verified after LIVE-04 because the local esbuild service deadlocked; TypeScript compilation passes.
-- GitHub CI now runs locked installs, formatting, lint, migrations, schema drift, tests, type-checking,
-  and the production frontend build; its first remote run is pending.
+- Backend: **19 tests passed** (plus 3 password-validation subtests).
+- Simulator: **8 tests passed**.
+- Frontend: **15 tests passed**.
+- Dependency-impact golden fixtures cover exchange, cabinet, distribution-point, premise, direct,
+  transitive, empty, and unknown-source behavior.
+- Ruff, TypeScript, Django tests, OpenAPI validation, and the production Angular build pass in CI.
+- GitHub CI runs locked installs, formatting, lint, migrations, schema drift, tests, type-checking,
+  and the production frontend build. [Run #1 passed](https://github.com/1211101234/NetworkTwin/actions/runs/37007898447).
 - 9,997-asset profile: 25.1 ms generation and 153.3 ms serialization median.
 - Replay: twelve ordered events, including six technician movements, with deterministic reset covered.
 

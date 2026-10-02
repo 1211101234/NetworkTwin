@@ -3,17 +3,47 @@ from collections.abc import Iterator
 
 from django.http import StreamingHttpResponse
 from drf_spectacular.utils import OpenApiParameter, extend_schema
-from network_twin_simulation import generate_event_log, generate_topology
+from network_twin_simulation import (
+    calculate_dependency_impact,
+    generate_event_log,
+    generate_topology,
+)
+from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from topology.serializers import (
+    DependencyImpactSerializer,
+    ImpactQuerySerializer,
     SimulationEventSerializer,
     TopologyQuerySerializer,
     TopologySerializer,
 )
+
+
+class DependencyImpactView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        parameters=[ImpactQuerySerializer],
+        responses={200: DependencyImpactSerializer, 404: dict},
+        summary="Calculate direct and transitive downstream asset impact",
+    )
+    def get(self, request: Request) -> Response:
+        query = ImpactQuerySerializer(data=request.query_params)
+        query.is_valid(raise_exception=True)
+        topology = generate_topology(query.topology_config())
+        asset_id = str(query.validated_data["asset_id"])
+        try:
+            impact = calculate_dependency_impact(topology, asset_id)
+        except ValueError:
+            return Response(
+                {"detail": f"Asset '{asset_id}' was not found in this topology."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        return Response(DependencyImpactSerializer(impact).data)
 
 
 class TopologyView(APIView):

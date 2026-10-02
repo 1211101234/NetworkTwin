@@ -81,18 +81,14 @@ def generate_event_log(
     incident_count: int = 3,
 ) -> tuple[SimulationEvent, ...]:
     candidates = [
-        asset
-        for asset in topology.assets
-        if asset.type in ("cabinet", "distribution-point")
+        asset for asset in topology.assets if asset.type in ("cabinet", "distribution-point")
     ]
     if not candidates or incident_count < 1:
         return ()
 
     random_source = random.Random(seed)
     selected = random_source.sample(candidates, min(incident_count, len(candidates)))
-    scheduled: list[
-        tuple[int, str, EventType, AssetStatusPayload | TechnicianPositionPayload]
-    ] = []
+    scheduled: list[tuple[int, str, EventType, AssetStatusPayload | TechnicianPositionPayload]] = []
     exchange = next(asset for asset in topology.assets if asset.type == "exchange")
     for index, asset in enumerate(selected):
         failure_time = 15 + index * 30
@@ -157,9 +153,7 @@ def generate_event_log(
             type=event_type,
             payload=payload,
         )
-        for sequence, (simulation_time, _, event_type, payload) in enumerate(
-            scheduled, start=1
-        )
+        for sequence, (simulation_time, _, event_type, payload) in enumerate(scheduled, start=1)
     )
 
 

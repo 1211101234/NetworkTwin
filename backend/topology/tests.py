@@ -103,3 +103,42 @@ class SimulationEventViewTests(APITestCase):
         self.assertIn("id: 4\n", body)
         self.assertEqual(body.count("event: network-event"), 9)
         self.assertIn(": heartbeat", body)
+
+
+class DependencyImpactViewTests(APITestCase):
+    def setUp(self) -> None:
+        self.user = get_user_model().objects.create_user(
+            username="impact.viewer",
+            password="SafePass!9",
+        )
+        self.client.force_login(self.user)
+
+    def test_cabinet_impact_includes_direct_and_transitive_assets(self) -> None:
+        response = self.client.get(
+            reverse("dependency-impact"),
+            {"profile": "demo", "seed": 42, "asset_id": "cabinet-001"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()["sourceAssetId"], "cabinet-001")
+        self.assertEqual(response.json()["directDependentCount"], 4)
+        self.assertEqual(response.json()["impactedAssetCount"], 24)
+        self.assertEqual(response.json()["affectedPremiseCount"], 20)
+
+    def test_unknown_asset_returns_not_found(self) -> None:
+        response = self.client.get(
+            reverse("dependency-impact"),
+            {"profile": "demo", "asset_id": "missing-asset"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_impact_requires_authentication(self) -> None:
+        self.client.logout()
+
+        response = self.client.get(
+            reverse("dependency-impact"),
+            {"profile": "demo", "asset_id": "cabinet-001"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

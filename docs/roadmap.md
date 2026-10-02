@@ -12,24 +12,24 @@
 
 ## Outcomes and measures
 
-| Outcome | Measure | Target |
-| --- | --- | --- |
-| Credible static twin | Stable 2D/3D presentation on Kuala Lumpur geography | 10,000 assets in the performance dataset |
-| Live operational story | Fault, recovery, and technician events visible in sequence | p95 event-to-screen under 500 ms locally |
-| Repeatable decisions | Three seeded scenarios produce consistent impact | Same seed and inputs produce identical results |
-| Integration readiness | Frontend stays unchanged when a source adapter is replaced | Contract tests pass for synthetic and future adapters |
-| Stakeholder confidence | Scripted demo and proposal reviewed | Feedback and go/no-go decision recorded |
+| Outcome                | Measure                                                    | Target                                                |
+| ---------------------- | ---------------------------------------------------------- | ----------------------------------------------------- |
+| Credible static twin   | Stable 2D/3D presentation on Kuala Lumpur geography        | 10,000 assets in the performance dataset              |
+| Live operational story | Fault, recovery, and technician events visible in sequence | p95 event-to-screen under 500 ms locally              |
+| Repeatable decisions   | Three seeded scenarios produce consistent impact           | Same seed and inputs produce identical results        |
+| Integration readiness  | Frontend stays unchanged when a source adapter is replaced | Contract tests pass for synthetic and future adapters |
+| Stakeholder confidence | Scripted demo and proposal reviewed                        | Feedback and go/no-go decision recorded               |
 
 ## Release train
 
-| Phase | Indicative dates | Required outcome | Exit evidence | Status |
-| --- | --- | --- | --- | --- |
-| 0 — Foundations | 29 Sep–16 Oct 2026 | Runnable skeleton, decisions, contracts, budgets | Clean builds, health/API docs, architecture review | 67% — first CI run remains |
-| 1 — Static Twin | 19 Oct–11 Dec 2026 | Synthetic topology in interactive 2D and initial 3D | Mini-demo and measured performance report | Complete early |
-| 2 — Live Twin | 14 Dec 2026–22 Jan 2027 | Replayable faults, recoveries, and technician movement | HOU demo rehearsal passes twice | Implementation complete; rehearsal remains |
-| 3 — Scenario Engine | 25 Jan–19 Mar 2027 | Impact propagation and three headline scenarios | Seeded expected-result tests and comparison demo | Not started |
-| 4 — Integration Readiness | 22 Mar–16 Apr 2027 | Approved adapter and security design | Integration specification review | Not started |
-| 5 — Extensions | Proposal-dependent | Individually approved pilots | Separate pilot gate per extension | Gated |
+| Phase                     | Indicative dates        | Required outcome                                       | Exit evidence                                      | Status                                     |
+| ------------------------- | ----------------------- | ------------------------------------------------------ | -------------------------------------------------- | ------------------------------------------ |
+| 0 — Foundations           | 29 Sep–16 Oct 2026      | Runnable skeleton, decisions, contracts, budgets       | Clean builds, health/API docs, architecture review | Complete early                             |
+| 1 — Static Twin           | 19 Oct–11 Dec 2026      | Synthetic topology in interactive 2D and initial 3D    | Mini-demo and measured performance report          | Complete early                             |
+| 2 — Live Twin             | 14 Dec 2026–22 Jan 2027 | Replayable faults, recoveries, and technician movement | HOU demo rehearsal passes twice                    | Implementation complete; rehearsal remains |
+| 3 — Scenario Engine       | 25 Jan–19 Mar 2027      | Impact propagation and three headline scenarios        | Seeded expected-result tests and comparison demo   | 25% — impact propagation complete          |
+| 4 — Integration Readiness | 22 Mar–16 Apr 2027      | Approved adapter and security design                   | Integration specification review                   | Not started                                |
+| 5 — Extensions            | Proposal-dependent      | Individually approved pilots                           | Separate pilot gate per extension                  | Gated                                      |
 
 Dates are working targets, not commitments. Re-baseline after the Phase 1 mini-demo.
 
@@ -156,24 +156,24 @@ Deterministic topology → versioned API → performant 2D rendering → ordered
 
 ## Open decisions
 
-| Decision | Deadline | Evidence needed |
-| --- | --- | --- |
-| Exact Kuala Lumpur bounding box and map-data source | Before Phase 1 iteration 2 | Coverage, licence/attribution, tile/service limits |
-| NetworkX and SimPy acceptance | Phase 1/2 spikes | Determinism, performance, replay semantics |
-| Persistence database beyond local SQLite | Before shared deployment | Query profile, deployment constraints, geospatial need |
-| CI provider and deployment target | Repository hosting decision | Available runners, secrets model, environment policy |
-| HOU date and demo duration | Before Phase 2 planning | Stakeholder availability and presentation timebox |
+| Decision                                            | Deadline                    | Evidence needed                                        |
+| --------------------------------------------------- | --------------------------- | ------------------------------------------------------ |
+| Exact Kuala Lumpur bounding box and map-data source | Before Phase 1 iteration 2  | Coverage, licence/attribution, tile/service limits     |
+| NetworkX and SimPy acceptance                       | Phase 1/2 spikes            | Determinism, performance, replay semantics             |
+| Persistence database beyond local SQLite            | Before shared deployment    | Query profile, deployment constraints, geospatial need |
+| CI provider and deployment target                   | Repository hosting decision | Available runners, secrets model, environment policy   |
+| HOU date and demo duration                          | Before Phase 2 planning     | Stakeholder availability and presentation timebox      |
 
 ## Principal risks and triggers
 
-| Risk | Trigger | Response |
-| --- | --- | --- |
-| Solo capacity | Two consecutive missed weekly outcomes | Cut optional scope and re-baseline the next gate |
-| Map/rendering scale | Below 30 FPS in scripted interaction | Profile, aggregate, and introduce level-of-detail |
-| Demo network dependence | Tile or service failure during rehearsal | Cache an approved offline demo package or use a local style |
-| Unrealistic synthetic data | Stakeholder cannot recognise the topology story | Review generation rules with a network-domain contact |
-| TMFORCE overlap concern | Dispatch/job-management requests enter backlog | Restate boundary and route those requirements to integration design |
-| Real-data pressure | Request arrives before security approval | Use adapter mocks and start the sanctioned-access review |
+| Risk                       | Trigger                                         | Response                                                            |
+| -------------------------- | ----------------------------------------------- | ------------------------------------------------------------------- |
+| Solo capacity              | Two consecutive missed weekly outcomes          | Cut optional scope and re-baseline the next gate                    |
+| Map/rendering scale        | Below 30 FPS in scripted interaction            | Profile, aggregate, and introduce level-of-detail                   |
+| Demo network dependence    | Tile or service failure during rehearsal        | Cache an approved offline demo package or use a local style         |
+| Unrealistic synthetic data | Stakeholder cannot recognise the topology story | Review generation rules with a network-domain contact               |
+| TMFORCE overlap concern    | Dispatch/job-management requests enter backlog  | Restate boundary and route those requirements to integration design |
+| Real-data pressure         | Request arrives before security approval        | Use adapter mocks and start the sanctioned-access review            |
 
 ## Proposed application layer
 
@@ -184,6 +184,6 @@ percentage until the scope and repository host are confirmed.
 
 ## Immediate next three outcomes
 
-1. Verify the new GitHub CI workflow and its production frontend build.
+1. Implement SCN-02 as a seeded geographic flood scenario and impact report.
 2. Confirm the first persistent CRUD entity and its role matrix.
-3. Start SCN-01 with dependency-graph validation and golden impact fixtures.
+3. Define the production account-approval and password-recovery policy.

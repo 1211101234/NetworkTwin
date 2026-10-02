@@ -160,3 +160,52 @@
 - Frontend: 14 tests, formatting, and TypeScript passing.
 - Django configuration/migration checks and generated OpenAPI validation pass.
 - The first GitHub-hosted CI run remains required before FND-03 can be marked complete.
+
+## 2026-10-03 — Foundation CI verified
+
+### Completed
+
+- Merged pull request #1 containing technician movement, authentication, registration, API
+  protection, security hardening, and CI.
+- Verified the first GitHub Actions run on a clean Linux runner.
+- Confirmed the production Angular build succeeds in CI, isolating the local macOS Node abort as an
+  environment-specific issue rather than an application compilation failure.
+- Closed FND-03 and completed all Foundation, Static Twin, and Live Twin roadmap items.
+
+### Evidence
+
+- Pull request: <https://github.com/1211101234/NetworkTwin/pull/1>
+- Passing CI: <https://github.com/1211101234/NetworkTwin/actions/runs/37007898447>
+- Core roadmap: 16 of 22 items complete (73%).
+
+### Next
+
+1. Implement SCN-01 dependency relationships and deterministic downstream-impact calculation.
+2. Add golden fixtures for direct and transitive impact results.
+3. Expose the impact result through the existing API and Angular twin interface.
+
+## 2026-10-03 — Dependency graph and impact propagation
+
+### Completed
+
+- Reused directed topology routes as dependency edges instead of maintaining a second graph model.
+- Added deterministic breadth-first traversal for direct and transitive downstream impact.
+- Added impact depth, total affected assets, direct-dependent count, and affected-premise count.
+- Added an authenticated `/api/v1/topology/impact/` endpoint and updated OpenAPI contract.
+- Added an on-demand impact panel to the selected-asset interface with loading, empty, result, and
+  error states.
+
+### Evidence
+
+- Golden fixtures verify exchange, cabinet, distribution-point, and premise impact counts.
+- A demo cabinet deterministically reports 4 direct dependents, 24 total downstream assets, and 20
+  affected premises.
+- Backend: 19 tests plus 3 password-validation subtests passing.
+- Simulator: 8 tests passing; frontend: 15 tests passing.
+- Ruff, Prettier, TypeScript, Django checks, migration checks, and OpenAPI validation pass.
+
+### Next
+
+1. Implement SCN-02 with a seeded flood boundary and reproducible affected-asset selection.
+2. Feed flooded source assets through the dependency-impact engine.
+3. Present direct and downstream flood impact in the map and scenario report.

@@ -1,6 +1,7 @@
 from network_twin_simulation import (
     GeneratorConfig,
     ProfileName,
+    calculate_dependency_impact,
     config_for_profile,
     generate_event_log,
     generate_topology,
@@ -54,7 +55,9 @@ def test_event_log_is_deterministic_ordered_and_replayable() -> None:
         event.simulation_time_seconds for event in first
     )
     assert replay_asset_statuses(topology, first) == replay_asset_statuses(topology, second)
-    assert all(status == "operational" for status in replay_asset_statuses(topology, first).values())
+    assert all(
+        status == "operational" for status in replay_asset_statuses(topology, first).values()
+    )
 
 
 def test_technician_movements_are_deterministic_and_finish_on_assigned_assets() -> None:
@@ -74,3 +77,58 @@ def test_technician_movements_are_deterministic_and_finish_on_assigned_assets() 
         event.payload.position == assets_by_id[event.payload.assigned_asset_id].position
         for event in final_movements
     )
+
+
+def test_dependency_impact_returns_direct_and_transitive_dependents() -> None:
+    topology = generate_topology(config_for_profile("demo", seed=42))
+
+    impact = calculate_dependency_impact(topology, "cabinet-001")
+
+    assert impact.source_asset_type == "cabinet"
+    assert impact.direct_dependent_count == 4
+    assert impact.impacted_asset_count == 24
+    assert impact.affected_premise_count == 20
+    assert [asset.id for asset in impact.impacted_assets[:3]] == [
+        "distribution-point-0001",
+        "distribution-point-0002",
+        "distribution-point-0003",
+    ]
+    assert {asset.depth for asset in impact.impacted_assets} == {1, 2}
+
+
+def test_dependency_impact_golden_hierarchy_counts() -> None:
+    topology = generate_topology(
+        GeneratorConfig(
+            seed=42,
+            cabinet_count=2,
+            distribution_points_per_cabinet=2,
+            premises_per_distribution_point=3,
+        )
+    )
+
+    exchange_impact = calculate_dependency_impact(topology, "exchange-kl-001")
+    point_impact = calculate_dependency_impact(topology, "distribution-point-0001")
+    premise_impact = calculate_dependency_impact(topology, "premise-00001")
+
+    assert (
+        exchange_impact.direct_dependent_count,
+        exchange_impact.impacted_asset_count,
+        exchange_impact.affected_premise_count,
+    ) == (2, 18, 12)
+    assert (
+        point_impact.direct_dependent_count,
+        point_impact.impacted_asset_count,
+        point_impact.affected_premise_count,
+    ) == (3, 3, 3)
+    assert premise_impact.impacted_assets == ()
+
+
+def test_dependency_impact_rejects_unknown_source() -> None:
+    topology = generate_topology(config_for_profile("demo", seed=42))
+
+    try:
+        calculate_dependency_impact(topology, "missing-asset")
+    except ValueError as error:
+        assert str(error) == "Unknown source asset: missing-asset"
+    else:
+        raise AssertionError("Unknown sources must be rejected")
