@@ -38,6 +38,22 @@ export interface TopologySnapshot {
   readonly routes: readonly NetworkRoute[];
 }
 
+export interface ImpactedAsset {
+  readonly id: AssetId;
+  readonly type: AssetType;
+  readonly name: string;
+  readonly depth: number;
+}
+
+export interface DependencyImpact {
+  readonly sourceAssetId: AssetId;
+  readonly sourceAssetType: AssetType;
+  readonly directDependentCount: number;
+  readonly impactedAssetCount: number;
+  readonly affectedPremiseCount: number;
+  readonly impactedAssets: readonly ImpactedAsset[];
+}
+
 export interface AssetStatusEventPayload {
   readonly assetId: AssetId;
   readonly previousStatus: AssetStatus;

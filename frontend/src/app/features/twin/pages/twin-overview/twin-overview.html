@@ -243,6 +243,50 @@
             <dd>{{ asset.position.longitude }}</dd>
           </div>
         </dl>
+        <button
+          class="impact-button"
+          type="button"
+          (click)="analyzeImpact()"
+          [disabled]="impactLoading()"
+        >
+          <i class="pi pi-sitemap" aria-hidden="true"></i>
+          {{ impactLoading() ? 'Calculating…' : 'Analyze downstream impact' }}
+        </button>
+        @if (impact(); as result) {
+          <section class="impact-result" aria-live="polite">
+            <p class="eyebrow">Dependency impact</p>
+            <div class="impact-metrics">
+              <span
+                ><strong>{{ result.directDependentCount }}</strong> direct</span
+              >
+              <span
+                ><strong>{{ result.impactedAssetCount }}</strong> total assets</span
+              >
+              <span
+                ><strong>{{ result.affectedPremiseCount }}</strong> premises</span
+              >
+            </div>
+            @if (result.impactedAssets.length > 0) {
+              <ol>
+                @for (impacted of result.impactedAssets.slice(0, 5); track impacted.id) {
+                  <li>
+                    <span>{{ impacted.name }}</span>
+                    <small>Level {{ impacted.depth }} · {{ impacted.type }}</small>
+                  </li>
+                }
+              </ol>
+              @if (result.impactedAssets.length > 5) {
+                <p class="impact-more">
+                  +{{ result.impactedAssets.length - 5 }} more affected assets
+                </p>
+              }
+            } @else {
+              <p class="impact-empty">This asset has no downstream dependencies.</p>
+            }
+          </section>
+        } @else if (impactError()) {
+          <p class="impact-error" role="alert">{{ impactError() }}</p>
+        }
       } @else {
         <div class="empty-selection">
           <i class="pi pi-map-marker" aria-hidden="true"></i>

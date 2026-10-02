@@ -179,5 +179,6 @@ SPECTACULAR_SETTINGS = {
     "VERSION": "0.1.0",
     "ENUM_NAME_OVERRIDES": {
         "AssetStatusEnum": ["operational", "degraded", "failed", "maintenance"],
+        "AssetTypeEnum": ["exchange", "cabinet", "distribution-point", "premise"],
     },
 }

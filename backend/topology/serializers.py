@@ -91,6 +91,37 @@ class TopologySerializer(serializers.Serializer):
     routes = RouteSerializer(many=True)
 
 
+class ImpactQuerySerializer(TopologyQuerySerializer):
+    asset_id = serializers.CharField(max_length=100)
+
+
+class ImpactedAssetSerializer(serializers.Serializer):
+    id = serializers.CharField()
+    type = serializers.ChoiceField(choices=("exchange", "cabinet", "distribution-point", "premise"))
+    name = serializers.CharField()
+    depth = serializers.IntegerField(min_value=1)
+
+
+class DependencyImpactSerializer(serializers.Serializer):
+    sourceAssetId = serializers.CharField(source="source_asset_id")  # noqa: N815
+    sourceAssetType = serializers.ChoiceField(  # noqa: N815
+        source="source_asset_type",
+        choices=("exchange", "cabinet", "distribution-point", "premise"),
+    )
+    directDependentCount = serializers.IntegerField(  # noqa: N815
+        source="direct_dependent_count", min_value=0
+    )
+    impactedAssetCount = serializers.IntegerField(  # noqa: N815
+        source="impacted_asset_count", min_value=0
+    )
+    affectedPremiseCount = serializers.IntegerField(  # noqa: N815
+        source="affected_premise_count", min_value=0
+    )
+    impactedAssets = ImpactedAssetSerializer(  # noqa: N815
+        source="impacted_assets", many=True
+    )
+
+
 class AssetStatusPayloadSerializer(serializers.Serializer):
     assetId = serializers.CharField()  # noqa: N815
     previousStatus = serializers.ChoiceField(  # noqa: N815

@@ -7,6 +7,11 @@ from network_twin_simulation.events import (
     replay_asset_statuses,
 )
 from network_twin_simulation.generator import GeneratorConfig, generate_topology
+from network_twin_simulation.impact import (
+    DependencyImpact,
+    ImpactedAsset,
+    calculate_dependency_impact,
+)
 from network_twin_simulation.models import Asset, Position, Route, Topology
 from network_twin_simulation.profiles import (
     PROFILE_CONFIGS,
@@ -18,14 +23,17 @@ __all__ = [
     "PROFILE_CONFIGS",
     "Asset",
     "AssetStatusPayload",
+    "DependencyImpact",
     "EventType",
     "GeneratorConfig",
+    "ImpactedAsset",
     "Position",
     "ProfileName",
     "Route",
     "SimulationEvent",
     "TechnicianPositionPayload",
     "Topology",
+    "calculate_dependency_impact",
     "config_for_profile",
     "generate_event_log",
     "generate_topology",

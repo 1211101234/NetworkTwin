@@ -8,12 +8,14 @@ import { catchError, debounceTime, distinctUntilChanged, of } from 'rxjs';
 import {
   AssetStatus,
   AssetType,
+  DependencyImpact,
   NetworkAsset,
   PlaybackSpeed,
   TopologyProfile,
   TwinViewMode,
 } from '../../../../core/models/network.models';
 import { HealthService } from '../../../../core/services/health.service';
+import { TopologyService } from '../../../../core/services/topology.service';
 import { NetworkMap } from '../../components/network-map/network-map';
 import { TwinActions } from '../../state/twin.actions';
 import { twinFeature } from '../../state/twin.reducer';
@@ -37,8 +39,12 @@ export class TwinOverview {
   private readonly healthService = inject(HealthService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly store = inject(Store);
+  private readonly topologyService = inject(TopologyService);
 
   protected readonly apiState = signal<ApiState>('checking');
+  protected readonly impact = signal<DependencyImpact | null>(null);
+  protected readonly impactLoading = signal(false);
+  protected readonly impactError = signal<string | null>(null);
   protected readonly topology = this.store.selectSignal(twinFeature.selectTopology);
   protected readonly visibleTopology = this.store.selectSignal(selectVisibleTopology);
   protected readonly topologyError = this.store.selectSignal(twinFeature.selectError);
@@ -89,6 +95,8 @@ export class TwinOverview {
   }
 
   protected loadTopology(seed = 20260929, profile: TopologyProfile = 'demo'): void {
+    this.impact.set(null);
+    this.impactError.set(null);
     this.store.dispatch(TwinActions.loadTopology({ seed, profile }));
   }
 
@@ -97,7 +105,31 @@ export class TwinOverview {
   }
 
   protected selectAsset(asset: NetworkAsset): void {
+    this.impact.set(null);
+    this.impactError.set(null);
     this.store.dispatch(TwinActions.selectAsset({ assetId: asset.id }));
+  }
+
+  protected analyzeImpact(): void {
+    const asset = this.selectedAsset();
+    const topology = this.topology();
+    if (!asset || !topology || this.impactLoading()) return;
+
+    this.impactLoading.set(true);
+    this.impactError.set(null);
+    this.topologyService
+      .getDependencyImpact({ seed: topology.seed, profile: this.profile() }, asset.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (impact) => {
+          this.impact.set(impact);
+          this.impactLoading.set(false);
+        },
+        error: () => {
+          this.impactError.set('Downstream impact could not be calculated.');
+          this.impactLoading.set(false);
+        },
+      });
   }
 
   protected toggleAssetType(assetType: AssetType): void {

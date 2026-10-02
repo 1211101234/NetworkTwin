@@ -462,6 +462,82 @@ paths:
               schema:
                 type: string
           description: ''
+  /api/v1/topology/impact/:
+    get:
+      operationId: v1_topology_impact_retrieve
+      summary: Calculate direct and transitive downstream asset impact
+      parameters:
+      - in: query
+        name: asset_id
+        schema:
+          type: string
+          maxLength: 100
+          minLength: 1
+        required: true
+      - in: query
+        name: cabinet_count
+        schema:
+          type: integer
+          maximum: 50
+          minimum: 1
+          default: 6
+      - in: query
+        name: distribution_points_per_cabinet
+        schema:
+          type: integer
+          maximum: 20
+          minimum: 1
+          default: 4
+      - in: query
+        name: premises_per_distribution_point
+        schema:
+          type: integer
+          maximum: 50
+          minimum: 1
+          default: 5
+      - in: query
+        name: profile
+        schema:
+          enum:
+          - demo
+          - 1k
+          - 5k
+          - 10k
+          - custom
+          type: string
+          default: demo
+          minLength: 1
+        description: |-
+          * `demo` - demo
+          * `1k` - 1k
+          * `5k` - 5k
+          * `10k` - 10k
+          * `custom` - custom
+      - in: query
+        name: seed
+        schema:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          default: 20260929
+      tags:
+      - v1
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DependencyImpact'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
 components:
   schemas:
     Asset:
@@ -540,6 +616,50 @@ components:
       - isAdministrator
       - roles
       - username
+    DependencyImpact:
+      type: object
+      properties:
+        sourceAssetId:
+          type: string
+        sourceAssetType:
+          $ref: '#/components/schemas/AssetTypeEnum'
+        directDependentCount:
+          type: integer
+          minimum: 0
+        impactedAssetCount:
+          type: integer
+          minimum: 0
+        affectedPremiseCount:
+          type: integer
+          minimum: 0
+        impactedAssets:
+          type: array
+          items:
+            $ref: '#/components/schemas/ImpactedAsset'
+      required:
+      - affectedPremiseCount
+      - directDependentCount
+      - impactedAssetCount
+      - impactedAssets
+      - sourceAssetId
+      - sourceAssetType
+    ImpactedAsset:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          $ref: '#/components/schemas/AssetTypeEnum'
+        name:
+          type: string
+        depth:
+          type: integer
+          minimum: 1
+      required:
+      - depth
+      - id
+      - name
+      - type
     Login:
       type: object
       properties:
