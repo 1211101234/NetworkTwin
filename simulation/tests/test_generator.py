@@ -55,3 +55,22 @@ def test_event_log_is_deterministic_ordered_and_replayable() -> None:
     )
     assert replay_asset_statuses(topology, first) == replay_asset_statuses(topology, second)
     assert all(status == "operational" for status in replay_asset_statuses(topology, first).values())
+
+
+def test_technician_movements_are_deterministic_and_finish_on_assigned_assets() -> None:
+    topology = generate_topology(config_for_profile("demo", seed=42))
+    events = generate_event_log(topology, seed=42)
+    movements = [event for event in events if event.type == "technician-position-changed"]
+    assets_by_id = {asset.id: asset for asset in topology.assets}
+
+    assert len(movements) == 6
+    assert {event.payload.technician_id for event in movements} == {
+        "technician-001",
+        "technician-002",
+    }
+    final_movements = [event for event in movements if event.payload.status == "on-site"]
+    assert len(final_movements) == 2
+    assert all(
+        event.payload.position == assets_by_id[event.payload.assigned_asset_id].position
+        for event in final_movements
+    )

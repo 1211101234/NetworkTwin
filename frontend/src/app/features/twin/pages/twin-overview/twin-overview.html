@@ -166,9 +166,16 @@
       @for (event of appliedEvents().slice(0, 3); track event.id) {
         <li>
           <span class="event-time">{{ event.simulationTimeSeconds }}s</span>
-          <span
-            ><strong>{{ event.payload.assetId }}</strong> → {{ event.payload.status }}</span
-          >
+          @if (event.type === 'asset-status-changed') {
+            <span
+              ><strong>{{ event.payload.assetId }}</strong> → {{ event.payload.status }}</span
+            >
+          } @else {
+            <span
+              ><strong>{{ event.payload.technicianName }}</strong> →
+              {{ event.payload.status }}</span
+            >
+          }
         </li>
       } @empty {
         <li class="event-empty">Press Play to run the seeded fault and recovery sequence.</li>
@@ -182,6 +189,7 @@
         <app-network-map
           [topology]="snapshot"
           [viewMode]="viewMode()"
+          [technicians]="technicians()"
           (assetSelected)="selectAsset($event)"
         />
       } @else if (topologyError()) {
@@ -199,7 +207,8 @@
       }
       <div class="legend" aria-label="Map legend">
         <span class="exchange">Exchange</span><span class="cabinet">Cabinet</span
-        ><span class="point">Distribution point</span><span class="premise">Premise</span>
+        ><span class="point">Distribution point</span><span class="premise">Premise</span
+        ><span class="technician">Technician</span>
       </div>
     </div>
 

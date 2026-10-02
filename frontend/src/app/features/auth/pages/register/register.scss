@@ -1,0 +1,125 @@
+:host {
+  display: block;
+  min-height: calc(100vh - 5rem);
+  padding: clamp(3rem, 8vw, 7rem) clamp(1rem, 5vw, 4rem);
+}
+.register-shell {
+  align-items: start;
+  display: grid;
+  gap: clamp(2rem, 6vw, 5rem);
+  grid-template-columns: minmax(0, 1.2fr) minmax(18rem, 0.8fr);
+  margin: 0 auto;
+  max-width: 68rem;
+}
+.register-copy h1 {
+  font-size: clamp(2.5rem, 6vw, 5rem);
+  letter-spacing: -0.055em;
+  line-height: 0.98;
+  margin: 0.7rem 0 1.25rem;
+  max-width: 12ch;
+}
+.register-copy > p:last-child {
+  color: var(--muted-text);
+  line-height: 1.7;
+  max-width: 38rem;
+}
+form {
+  background: linear-gradient(145deg, rgb(15 31 54 / 96%), rgb(11 25 44 / 96%));
+  border: 1px solid rgb(125 211 252 / 20%);
+  border-radius: 1.25rem;
+  box-shadow: 0 1.5rem 4rem rgb(0 0 0 / 28%);
+  display: grid;
+  gap: 1.25rem;
+  padding: clamp(1.5rem, 4vw, 2.25rem);
+}
+label {
+  display: grid;
+  font-size: 0.78rem;
+  font-weight: 700;
+  gap: 0.5rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+input {
+  background: rgb(3 12 24 / 78%);
+  border: 1px solid rgb(148 163 184 / 25%);
+  border-radius: 0.7rem;
+  color: var(--text);
+  font: inherit;
+  letter-spacing: normal;
+  padding: 0.85rem 0.95rem;
+  text-transform: none;
+}
+input:focus-visible {
+  border-color: var(--accent);
+  outline: 2px solid rgb(45 212 191 / 22%);
+  outline-offset: 2px;
+}
+small,
+.form-error {
+  color: #fda4af;
+  font-size: 0.75rem;
+  letter-spacing: normal;
+  margin: 0;
+  text-transform: none;
+}
+.strength-meter {
+  align-items: center;
+  display: grid;
+  gap: 0.35rem;
+  grid-template-columns: repeat(3, 1fr) auto;
+}
+.strength-meter > span {
+  background: rgb(148 163 184 / 22%);
+  border-radius: 999px;
+  height: 0.25rem;
+}
+.strength-meter strong {
+  color: var(--muted-text);
+  font-size: 0.68rem;
+  letter-spacing: normal;
+  margin-left: 0.2rem;
+  min-width: 3.4rem;
+  text-transform: none;
+}
+.strength-weak > span:first-child,
+.strength-medium > span:nth-child(-n + 2),
+.strength-strong > span {
+  background: #fb7185;
+}
+.strength-medium > span:nth-child(-n + 2) {
+  background: #fbbf24;
+}
+.strength-strong > span {
+  background: var(--accent);
+}
+.strength-medium strong {
+  color: #fbbf24;
+}
+.strength-strong strong {
+  color: var(--accent);
+}
+button {
+  background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+  border: 0;
+  border-radius: 0.7rem;
+  color: #04101e;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+  padding: 0.9rem 1rem;
+}
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+form > a {
+  color: #7dd3fc;
+  font-size: 0.82rem;
+  text-align: center;
+}
+@media (max-width: 760px) {
+  .register-shell {
+    grid-template-columns: 1fr;
+  }
+}

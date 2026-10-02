@@ -143,4 +143,43 @@ describe('twin state', () => {
     expect(visible?.assetCount).toBe(1);
     expect(visible?.routes).toEqual([]);
   });
+
+  it('moves technicians with playback and restores their starting positions on reset', () => {
+    const loadedState = twinFeature.reducer(
+      initialTwinState,
+      TwinActions.loadTopologySuccess({ topology }),
+    );
+    const eventState = twinFeature.reducer(
+      loadedState,
+      TwinActions.loadEventLogSuccess({
+        events: [
+          {
+            id: 'evt-000001',
+            schemaVersion: '1.0',
+            sequence: 1,
+            simulationTimeSeconds: 25,
+            type: 'technician-position-changed',
+            payload: {
+              technicianId: 'technician-001',
+              technicianName: 'Field Technician 01',
+              assignedAssetId: 'cabinet-1',
+              fromPosition: { latitude: 3.1, longitude: 101.7 },
+              position: { latitude: 3.11, longitude: 101.71 },
+              status: 'en-route',
+            },
+          },
+        ],
+      }),
+    );
+    const appliedState = twinFeature.reducer(eventState, TwinActions.playbackTick());
+    const resetState = twinFeature.reducer(appliedState, TwinActions.resetPlayback());
+
+    expect(eventState.technicians[0]?.position).toEqual({ latitude: 3.1, longitude: 101.7 });
+    expect(appliedState.technicians[0]?.position).toEqual({
+      latitude: 3.11,
+      longitude: 101.71,
+    });
+    expect(appliedState.technicians[0]?.route).toHaveLength(2);
+    expect(resetState.technicians[0]?.position).toEqual({ latitude: 3.1, longitude: 101.7 });
+  });
 });

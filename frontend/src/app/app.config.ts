@@ -1,4 +1,4 @@
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXsrfConfiguration } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { ApplicationConfig, isDevMode, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideEffects } from '@ngrx/effects';
@@ -12,7 +12,9 @@ import { routes } from './app.routes';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideHttpClient(),
+    provideHttpClient(
+      withXsrfConfiguration({ cookieName: 'csrftoken', headerName: 'X-CSRFToken' }),
+    ),
     provideRouter(routes),
     provideAnimationsAsync(),
     providePrimeNG({

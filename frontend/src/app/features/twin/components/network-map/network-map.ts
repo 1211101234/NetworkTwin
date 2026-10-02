@@ -20,6 +20,7 @@ import mapLibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&ur
 import {
   NetworkAsset,
   NetworkRoute,
+  Technician,
   TopologySnapshot,
   TwinViewMode,
 } from '../../../../core/models/network.models';
@@ -36,6 +37,7 @@ setWorkerUrl(mapLibreWorkerUrl);
 export class NetworkMap implements AfterViewInit, OnChanges, OnDestroy {
   readonly topology = input.required<TopologySnapshot>();
   readonly viewMode = input.required<TwinViewMode>();
+  readonly technicians = input<readonly Technician[]>([]);
   readonly assetSelected = output<NetworkAsset>();
 
   @ViewChild('mapContainer', { static: true })
@@ -61,7 +63,7 @@ export class NetworkMap implements AfterViewInit, OnChanges, OnDestroy {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if ((changes['topology'] || changes['viewMode']) && this.overlay) {
+    if ((changes['topology'] || changes['viewMode'] || changes['technicians']) && this.overlay) {
       this.overlay.setProps({ layers: this.createLayers() });
     }
     if (changes['viewMode'] && this.map) {
@@ -96,9 +98,32 @@ export class NetworkMap implements AfterViewInit, OnChanges, OnDestroy {
       widthMinPixels: 1,
       antialiasing: true,
     });
+    const technicianRouteLayer = new PathLayer<Technician>({
+      id: 'technician-routes',
+      data: this.technicians(),
+      getPath: (technician): DeckPosition[] =>
+        technician.route.map(({ longitude, latitude }) => [longitude, latitude]),
+      getColor: [244, 114, 182, 210],
+      getWidth: 4,
+      widthMinPixels: 2,
+    });
+    const technicianLayer = new ScatterplotLayer<Technician>({
+      id: 'technicians',
+      data: this.technicians(),
+      getPosition: (technician) => [technician.position.longitude, technician.position.latitude],
+      getRadius: 75,
+      getFillColor: [244, 114, 182, 245],
+      getLineColor: [255, 255, 255, 255],
+      lineWidthMinPixels: 2,
+      radiusMinPixels: 7,
+      radiusMaxPixels: 18,
+      stroked: true,
+      pickable: true,
+    });
     if (this.viewMode() === '3d') {
       return [
         routeLayer,
+        technicianRouteLayer,
         new ColumnLayer<NetworkAsset>({
           id: 'network-assets-3d',
           data: assets,
@@ -114,10 +139,12 @@ export class NetworkMap implements AfterViewInit, OnChanges, OnDestroy {
             if (object) this.assetSelected.emit(object);
           },
         }),
+        technicianLayer,
       ];
     }
     return [
       routeLayer,
+      technicianRouteLayer,
       new ScatterplotLayer<NetworkAsset>({
         id: 'network-assets',
         data: assets,
@@ -136,6 +163,7 @@ export class NetworkMap implements AfterViewInit, OnChanges, OnDestroy {
           if (object) this.assetSelected.emit(object);
         },
       }),
+      technicianLayer,
     ];
   }
 

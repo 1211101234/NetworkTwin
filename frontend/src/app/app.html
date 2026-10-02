@@ -5,6 +5,14 @@
       ><strong>Network Twin</strong><small>Spatial intelligence & scenario planning</small></span
     >
   </a>
-  <span class="phase-badge">Phase 1 · Static twin</span>
+  <div class="header-actions">
+    <span class="phase-badge">Phase 2 · Live twin</span>
+    @if (auth.currentUser(); as user) {
+      <span class="user-name">{{ user.displayName }}</span>
+      <button type="button" (click)="logout()">Sign out</button>
+    } @else if (!auth.loading()) {
+      <a class="login-link" routerLink="/login">Sign in</a>
+    }
+  </div>
 </header>
 <main><router-outlet /></main>

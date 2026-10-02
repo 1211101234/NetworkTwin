@@ -2,6 +2,7 @@ from network_twin_simulation.events import (
     AssetStatusPayload,
     EventType,
     SimulationEvent,
+    TechnicianPositionPayload,
     generate_event_log,
     replay_asset_statuses,
 )
@@ -23,6 +24,7 @@ __all__ = [
     "ProfileName",
     "Route",
     "SimulationEvent",
+    "TechnicianPositionPayload",
     "Topology",
     "config_for_profile",
     "generate_event_log",

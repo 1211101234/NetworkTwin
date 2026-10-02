@@ -6,6 +6,7 @@ import {
   AssetType,
   PlaybackSpeed,
   SimulationEvent,
+  Technician,
   TopologyProfile,
   TopologySnapshot,
   TwinViewMode,
@@ -26,6 +27,7 @@ export interface TwinState {
   readonly visibleAssetTypes: Readonly<Record<AssetType, boolean>>;
   readonly showRoutes: boolean;
   readonly eventLog: readonly SimulationEvent[];
+  readonly technicians: readonly Technician[];
   readonly eventError: string | null;
   readonly playbackCursor: number;
   readonly playbackSpeed: PlaybackSpeed;
@@ -54,6 +56,7 @@ export const initialTwinState: TwinState = {
   visibleAssetTypes: allAssetTypesVisible,
   showRoutes: true,
   eventLog: [],
+  technicians: [],
   eventError: null,
   playbackCursor: 0,
   playbackSpeed: 1,
@@ -80,6 +83,7 @@ export const twinFeature = createFeature({
       error: null,
       selectedAssetId: state.selectedAssetId ?? topology.assets[0]?.id ?? null,
       eventLog: [],
+      technicians: [],
       playbackCursor: 0,
       playing: false,
       simulationTimeSeconds: 0,
@@ -118,6 +122,7 @@ export const twinFeature = createFeature({
     on(TwinActions.loadEventLogSuccess, (state, { events }): TwinState => ({
       ...state,
       eventLog: events,
+      technicians: initialTechnicians(events),
       eventError: null,
     })),
     on(TwinActions.loadEventLogFailure, (state, { error }): TwinState => ({
@@ -136,16 +141,35 @@ export const twinFeature = createFeature({
     on(TwinActions.playbackTick, (state): TwinState => {
       const event = state.eventLog[state.playbackCursor];
       if (!event || !state.topology) return { ...state, playing: false };
-      const topology = {
-        ...state.topology,
-        assets: state.topology.assets.map((asset) =>
-          asset.id === event.payload.assetId ? { ...asset, status: event.payload.status } : asset,
-        ),
-      };
+      const topology =
+        event.type === 'asset-status-changed'
+          ? {
+              ...state.topology,
+              assets: state.topology.assets.map((asset) =>
+                asset.id === event.payload.assetId
+                  ? { ...asset, status: event.payload.status }
+                  : asset,
+              ),
+            }
+          : state.topology;
+      const technicians =
+        event.type === 'technician-position-changed'
+          ? state.technicians.map((technician) =>
+              technician.id === event.payload.technicianId
+                ? {
+                    ...technician,
+                    position: event.payload.position,
+                    route: [...technician.route, event.payload.position],
+                    status: event.payload.status,
+                  }
+                : technician,
+            )
+          : state.technicians;
       const nextCursor = state.playbackCursor + 1;
       return {
         ...state,
         topology,
+        technicians,
         playbackCursor: nextCursor,
         playing: nextCursor < state.eventLog.length && state.playing,
         simulationTimeSeconds: event.simulationTimeSeconds,
@@ -157,6 +181,27 @@ export const twinFeature = createFeature({
       playbackCursor: 0,
       playing: false,
       simulationTimeSeconds: 0,
+      technicians: initialTechnicians(state.eventLog),
     })),
   ),
 });
+
+function initialTechnicians(events: readonly SimulationEvent[]): readonly Technician[] {
+  const technicians = new Map<string, Technician>();
+  for (const event of events) {
+    if (
+      event.type === 'technician-position-changed' &&
+      !technicians.has(event.payload.technicianId)
+    ) {
+      technicians.set(event.payload.technicianId, {
+        id: event.payload.technicianId,
+        name: event.payload.technicianName,
+        assignedAssetId: event.payload.assignedAssetId,
+        position: event.payload.fromPosition,
+        route: [event.payload.fromPosition],
+        status: 'en-route',
+      });
+    }
+  }
+  return [...technicians.values()];
+}

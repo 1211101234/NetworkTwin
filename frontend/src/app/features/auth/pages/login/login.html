@@ -1,0 +1,45 @@
+<section class="login-shell" aria-labelledby="login-heading">
+  <div class="login-copy">
+    <p class="eyebrow">Secure workspace</p>
+    <h1 id="login-heading">Sign in to manage the twin.</h1>
+    <p>
+      Viewing the synthetic network remains available to everyone. Sign in is required for future
+      operational changes, scenarios, and administration.
+    </p>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    @if (registrationComplete) {
+      <p class="form-success" role="status">Account created. Sign in with your new User ID.</p>
+    }
+    <label>
+      <span>User ID</span>
+      <input type="text" formControlName="username" autocomplete="username" maxlength="150" />
+      @if (form.controls.username.touched && form.controls.username.invalid) {
+        <small>Enter your User ID.</small>
+      }
+    </label>
+
+    <label>
+      <span>Password</span>
+      <input
+        type="password"
+        formControlName="password"
+        autocomplete="current-password"
+        maxlength="128"
+      />
+      @if (form.controls.password.touched && form.controls.password.invalid) {
+        <small>Enter your password.</small>
+      }
+    </label>
+
+    @if (error()) {
+      <p class="form-error" role="alert">{{ error() }}</p>
+    }
+
+    <button type="submit" [disabled]="submitting()">
+      {{ submitting() ? 'Signing in…' : 'Sign in' }}
+    </button>
+    <a routerLink="/register">Need an account? Register</a>
+  </form>
+</section>
