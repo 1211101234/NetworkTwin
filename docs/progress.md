@@ -69,3 +69,94 @@
 1. Add technician entities, deterministic movement events, and a technician map layer.
 2. Expand the replay timeline with direct seeking and scripted HOU storyline presets.
 3. Add browser reconnect integration coverage around the SSE client lifecycle.
+
+## 2026-09-30 — Deterministic technician movement
+
+### Completed
+
+- Two deterministic technician entities assigned to seeded fault assets.
+- Three ordered movement waypoints per technician in the version 1.0 event envelope.
+- Typed frontend event union and NgRx technician state using the existing replay clock.
+- Technician positions and travelled paths rendered as a dedicated deck.gl map layer.
+- Reset restores technician starting positions and clears travelled paths.
+
+### Evidence
+
+- Backend: 6 tests passing; simulator: 5 tests passing; frontend: 8 tests passing.
+- Ruff, Prettier, TypeScript, Django checks, and OpenAPI validation pass.
+- The Angular production build was attempted but the local esbuild service deadlocked. TypeScript
+  compilation passes, so build verification remains open rather than being claimed as successful.
+
+### Next
+
+1. Add CI for the chosen repository host and verify the production build in a clean runner.
+2. Review and approve the proposed authentication/role/CRUD hierarchy.
+3. Begin dependency-graph and downstream-impact work for SCN-01.
+
+## 2026-10-01 — Authentication and role foundation
+
+### Completed
+
+- CSRF-protected Django session login, logout, current-user, and CSRF bootstrap endpoints.
+- Viewer, Operator, Network Planner, and Administrator groups created through a reversible migration.
+- Inactive-user rejection and generic invalid-credential responses that avoid username disclosure.
+- Angular session service, typed user/role contracts, responsive sign-in screen, and session-aware header.
+- Public read-only twin retained while write-oriented management routes remain pending.
+
+### Evidence
+
+- Backend: 10 tests passing, including CSRF rejection and session lifecycle coverage.
+- Frontend: 10 tests passing, including session restoration and login request sequencing.
+- Ruff, Django checks, OpenAPI validation, Prettier, TypeScript, and live development build pass.
+- Live browser confirms the API-connected twin and responsive `/login` screen.
+
+### Next
+
+1. Confirm network assets as the first persistent CRUD resource.
+2. Add permission classes, audit records, and protected management routes with the CRUD slice.
+3. Add CI for the chosen repository host.
+
+## 2026-10-02 — Registration and protected application route
+
+### Completed
+
+- CSRF-protected self-registration API using Django password hashing and validation.
+- Case-insensitive duplicate User ID rejection and default Viewer role assignment.
+- Responsive registration screen with typed validation, confirmation matching, and a live
+  Weak/Medium/Strong password indicator.
+- Successful registration redirect and confirmation on the sign-in screen.
+- Protected main twin route, session restoration, logout redirect, and deduplicated session checks.
+
+### Evidence
+
+- Backend: 14 tests plus 3 password-validation subtests passing.
+- Frontend: 14 tests passing; TypeScript and Prettier checks pass.
+- Django system and migration checks pass; Ruff passes for the backend.
+- The production Angular build still exits in the known local esbuild failure mode before emitting
+  diagnostics; the full Angular test compiler and TypeScript compiler pass.
+
+### Next
+
+1. Verify the new GitHub CI workflow on its first remote run, including the production frontend build.
+2. Approve the first persistent CRUD resource and its role/permission matrix.
+3. Decide whether new Viewer accounts need administrator approval or email verification in production.
+
+## 2026-10-02 — Foundation gap closure
+
+### Completed
+
+- Added GitHub CI for locked dependency installation, formatting, Ruff, Django checks, migration
+  drift, OpenAPI drift, backend/simulator/frontend tests, TypeScript, and production build.
+- Protected topology, event-log, and SSE endpoints with server-side session authorization.
+- Added scoped login and registration throttles.
+- Enforced a non-default secret when debug is disabled and enabled production HTTPS redirect, secure
+  cookies, content-type protection, clickjacking protection, and HSTS.
+- Cleared the simulator lint failure and documented required production environment settings.
+
+### Evidence
+
+- Backend: 16 tests plus 3 password-validation subtests passing.
+- Simulator: 5 tests and Ruff passing.
+- Frontend: 14 tests, formatting, and TypeScript passing.
+- Django configuration/migration checks and generated OpenAPI validation pass.
+- The first GitHub-hosted CI run remains required before FND-03 can be marked complete.

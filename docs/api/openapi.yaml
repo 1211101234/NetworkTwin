@@ -151,7 +151,6 @@ paths:
       - schema
       security:
       - cookieAuth: []
-      - basicAuth: []
       - {}
       responses:
         '200':
@@ -173,6 +172,103 @@ paths:
                 type: object
                 additionalProperties: {}
           description: ''
+  /api/v1/auth/csrf/:
+    get:
+      operationId: v1_auth_csrf_retrieve
+      tags:
+      - v1
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  csrfToken:
+                    type: string
+          description: ''
+  /api/v1/auth/login/:
+    post:
+      operationId: v1_auth_login_create
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Login'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Login'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Login'
+        required: true
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CurrentUser'
+          description: ''
+  /api/v1/auth/logout/:
+    post:
+      operationId: v1_auth_logout_create
+      tags:
+      - v1
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/auth/me/:
+    get:
+      operationId: v1_auth_me_retrieve
+      tags:
+      - v1
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CurrentUser'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/v1/auth/register/:
+    post:
+      operationId: v1_auth_register_create
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Register'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Register'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Register'
+        required: true
+      security:
+      - {}
+      responses:
+        '201':
+          description: No response body
   /api/v1/topology/:
     get:
       operationId: v1_topology_retrieve
@@ -182,23 +278,41 @@ paths:
         name: cabinet_count
         schema:
           type: integer
-          maximum: 20
+          maximum: 50
           minimum: 1
           default: 6
       - in: query
         name: distribution_points_per_cabinet
         schema:
           type: integer
-          maximum: 12
+          maximum: 20
           minimum: 1
           default: 4
       - in: query
         name: premises_per_distribution_point
         schema:
           type: integer
-          maximum: 24
+          maximum: 50
           minimum: 1
           default: 5
+      - in: query
+        name: profile
+        schema:
+          enum:
+          - demo
+          - 1k
+          - 5k
+          - 10k
+          - custom
+          type: string
+          default: demo
+          minLength: 1
+        description: |-
+          * `demo` - demo
+          * `1k` - 1k
+          * `5k` - 5k
+          * `10k` - 10k
+          * `custom` - custom
       - in: query
         name: seed
         schema:
@@ -210,14 +324,143 @@ paths:
       - v1
       security:
       - cookieAuth: []
-      - basicAuth: []
-      - {}
       responses:
         '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Topology'
+          description: ''
+  /api/v1/topology/events/:
+    get:
+      operationId: v1_topology_events_list
+      summary: Get a deterministic ordered simulation event log
+      parameters:
+      - in: query
+        name: cabinet_count
+        schema:
+          type: integer
+          maximum: 50
+          minimum: 1
+          default: 6
+      - in: query
+        name: distribution_points_per_cabinet
+        schema:
+          type: integer
+          maximum: 20
+          minimum: 1
+          default: 4
+      - in: query
+        name: premises_per_distribution_point
+        schema:
+          type: integer
+          maximum: 50
+          minimum: 1
+          default: 5
+      - in: query
+        name: profile
+        schema:
+          enum:
+          - demo
+          - 1k
+          - 5k
+          - 10k
+          - custom
+          type: string
+          default: demo
+          minLength: 1
+        description: |-
+          * `demo` - demo
+          * `1k` - 1k
+          * `5k` - 5k
+          * `10k` - 10k
+          * `custom` - custom
+      - in: query
+        name: seed
+        schema:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          default: 20260929
+      tags:
+      - v1
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SimulationEvent'
+          description: ''
+  /api/v1/topology/events/stream/:
+    get:
+      operationId: v1_topology_events_stream_retrieve
+      summary: Stream deterministic simulation events with resume support
+      parameters:
+      - in: query
+        name: after
+        schema:
+          type: integer
+        description: Resume after this event sequence
+      - in: query
+        name: cabinet_count
+        schema:
+          type: integer
+          maximum: 50
+          minimum: 1
+          default: 6
+      - in: query
+        name: distribution_points_per_cabinet
+        schema:
+          type: integer
+          maximum: 20
+          minimum: 1
+          default: 4
+      - in: query
+        name: premises_per_distribution_point
+        schema:
+          type: integer
+          maximum: 50
+          minimum: 1
+          default: 5
+      - in: query
+        name: profile
+        schema:
+          enum:
+          - demo
+          - 1k
+          - 5k
+          - 10k
+          - custom
+          type: string
+          default: demo
+          minLength: 1
+        description: |-
+          * `demo` - demo
+          * `1k` - 1k
+          * `5k` - 5k
+          * `10k` - 10k
+          * `custom` - custom
+      - in: query
+        name: seed
+        schema:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          default: 20260929
+      tags:
+      - v1
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            text/event-stream:
+              schema:
+                type: string
           description: ''
 components:
   schemas:
@@ -227,7 +470,7 @@ components:
         id:
           type: string
         type:
-          $ref: '#/components/schemas/TypeEnum'
+          $ref: '#/components/schemas/AssetTypeEnum'
         name:
           type: string
         position:
@@ -236,7 +479,7 @@ components:
           type: string
           nullable: true
         status:
-          $ref: '#/components/schemas/StatusEnum'
+          $ref: '#/components/schemas/AssetStatusEnum'
         capacity:
           type: integer
           minimum: 0
@@ -252,6 +495,64 @@ components:
       - position
       - status
       - type
+    AssetStatusEnum:
+      enum:
+      - operational
+      - degraded
+      - failed
+      - maintenance
+      type: string
+      description: |-
+        * `operational` - operational
+        * `degraded` - degraded
+        * `failed` - failed
+        * `maintenance` - maintenance
+    AssetTypeEnum:
+      enum:
+      - exchange
+      - cabinet
+      - distribution-point
+      - premise
+      type: string
+      description: |-
+        * `exchange` - exchange
+        * `cabinet` - cabinet
+        * `distribution-point` - distribution-point
+        * `premise` - premise
+    CurrentUser:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        displayName:
+          type: string
+        roles:
+          type: array
+          items:
+            type: string
+        isAdministrator:
+          type: boolean
+      required:
+      - displayName
+      - id
+      - isAdministrator
+      - roles
+      - username
+    Login:
+      type: object
+      properties:
+        username:
+          type: string
+          maxLength: 150
+        password:
+          type: string
+          writeOnly: true
+          maxLength: 128
+      required:
+      - password
+      - username
     MediumEnum:
       enum:
       - fibre
@@ -274,6 +575,19 @@ components:
       required:
       - latitude
       - longitude
+    Register:
+      type: object
+      properties:
+        username:
+          type: string
+          maxLength: 150
+        password:
+          type: string
+          writeOnly: true
+          maxLength: 128
+      required:
+      - password
+      - username
     Route:
       type: object
       properties:
@@ -295,18 +609,39 @@ components:
       - path
       - sourceAssetId
       - targetAssetId
-    StatusEnum:
+    SimulationEvent:
+      type: object
+      properties:
+        id:
+          type: string
+        schemaVersion:
+          type: string
+        sequence:
+          type: integer
+          minimum: 1
+        simulationTimeSeconds:
+          type: integer
+          minimum: 0
+        type:
+          $ref: '#/components/schemas/SimulationEventTypeEnum'
+        payload:
+          type: object
+          additionalProperties: {}
+      required:
+      - id
+      - payload
+      - schemaVersion
+      - sequence
+      - simulationTimeSeconds
+      - type
+    SimulationEventTypeEnum:
       enum:
-      - operational
-      - degraded
-      - failed
-      - maintenance
+      - asset-status-changed
+      - technician-position-changed
       type: string
       description: |-
-        * `operational` - operational
-        * `degraded` - degraded
-        * `failed` - failed
-        * `maintenance` - maintenance
+        * `asset-status-changed` - asset-status-changed
+        * `technician-position-changed` - technician-position-changed
     Topology:
       type: object
       properties:
@@ -333,22 +668,7 @@ components:
       - routeCount
       - routes
       - seed
-    TypeEnum:
-      enum:
-      - exchange
-      - cabinet
-      - distribution-point
-      - premise
-      type: string
-      description: |-
-        * `exchange` - exchange
-        * `cabinet` - cabinet
-        * `distribution-point` - distribution-point
-        * `premise` - premise
   securitySchemes:
-    basicAuth:
-      type: http
-      scheme: basic
     cookieAuth:
       type: apiKey
       in: cookie
