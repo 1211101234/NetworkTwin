@@ -45,7 +45,7 @@ export interface AssetStatusEventPayload {
   readonly reason: string;
 }
 
-export interface SimulationEvent {
+export interface AssetStatusSimulationEvent {
   readonly id: string;
   readonly schemaVersion: '1.0';
   readonly sequence: number;
@@ -53,5 +53,36 @@ export interface SimulationEvent {
   readonly type: 'asset-status-changed';
   readonly payload: AssetStatusEventPayload;
 }
+
+export type TechnicianStatus = 'en-route' | 'on-site';
+
+export interface Technician {
+  readonly id: string;
+  readonly name: string;
+  readonly assignedAssetId: AssetId;
+  readonly position: GeoPosition;
+  readonly route: readonly GeoPosition[];
+  readonly status: TechnicianStatus;
+}
+
+export interface TechnicianPositionEventPayload {
+  readonly technicianId: string;
+  readonly technicianName: string;
+  readonly assignedAssetId: AssetId;
+  readonly fromPosition: GeoPosition;
+  readonly position: GeoPosition;
+  readonly status: TechnicianStatus;
+}
+
+export interface TechnicianPositionSimulationEvent {
+  readonly id: string;
+  readonly schemaVersion: '1.0';
+  readonly sequence: number;
+  readonly simulationTimeSeconds: number;
+  readonly type: 'technician-position-changed';
+  readonly payload: TechnicianPositionEventPayload;
+}
+
+export type SimulationEvent = AssetStatusSimulationEvent | TechnicianPositionSimulationEvent;
 
 export type PlaybackSpeed = 0.5 | 1 | 2;

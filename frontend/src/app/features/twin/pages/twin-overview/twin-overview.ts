@@ -53,6 +53,7 @@ export class TwinOverview {
   protected readonly viewMode = this.store.selectSignal(twinFeature.selectViewMode);
   protected readonly hasActiveFilters = this.store.selectSignal(selectHasActiveFilters);
   protected readonly eventLog = this.store.selectSignal(twinFeature.selectEventLog);
+  protected readonly technicians = this.store.selectSignal(twinFeature.selectTechnicians);
   protected readonly appliedEvents = this.store.selectSignal(selectAppliedEvents);
   protected readonly playbackCursor = this.store.selectSignal(twinFeature.selectPlaybackCursor);
   protected readonly playbackSpeed = this.store.selectSignal(twinFeature.selectPlaybackSpeed);

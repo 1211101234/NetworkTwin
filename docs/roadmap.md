@@ -24,9 +24,9 @@
 
 | Phase | Indicative dates | Required outcome | Exit evidence | Status |
 | --- | --- | --- | --- | --- |
-| 0 — Foundations | 29 Sep–16 Oct 2026 | Runnable skeleton, decisions, contracts, budgets | Clean builds, health/API docs, architecture review | 67% — CI remains |
+| 0 — Foundations | 29 Sep–16 Oct 2026 | Runnable skeleton, decisions, contracts, budgets | Clean builds, health/API docs, architecture review | 67% — first CI run remains |
 | 1 — Static Twin | 19 Oct–11 Dec 2026 | Synthetic topology in interactive 2D and initial 3D | Mini-demo and measured performance report | Complete early |
-| 2 — Live Twin | 14 Dec 2026–22 Jan 2027 | Replayable faults, recoveries, and technician movement | HOU demo rehearsal passes twice | 80% — technician movement remains |
+| 2 — Live Twin | 14 Dec 2026–22 Jan 2027 | Replayable faults, recoveries, and technician movement | HOU demo rehearsal passes twice | Implementation complete; rehearsal remains |
 | 3 — Scenario Engine | 25 Jan–19 Mar 2027 | Impact propagation and three headline scenarios | Seeded expected-result tests and comparison demo | Not started |
 | 4 — Integration Readiness | 22 Mar–16 Apr 2027 | Approved adapter and security design | Integration specification review | Not started |
 | 5 — Extensions | Proposal-dependent | Individually approved pilots | Separate pilot gate per extension | Gated |
@@ -175,8 +175,15 @@ Deterministic topology → versioned API → performant 2D rendering → ordered
 | TMFORCE overlap concern | Dispatch/job-management requests enter backlog | Restate boundary and route those requirements to integration design |
 | Real-data pressure | Request arrives before security approval | Use adapter mocks and start the sanctioned-access review |
 
+## Proposed application layer
+
+User login and persistent CRUD are a meaningful expansion of the synthetic-first demo. Their
+recommended hierarchy, permission boundaries, data ownership, and implementation order are defined
+in [`application-hierarchy.md`](application-hierarchy.md). They remain outside the core completion
+percentage until the scope and repository host are confirmed.
+
 ## Immediate next three outcomes
 
-1. Complete and verify the seeded topology API-to-map vertical slice.
-2. Add filter/search/selection state with focused component and service tests.
-3. Create 1k/5k/10k fixtures and record the first performance baseline.
+1. Verify the new GitHub CI workflow and its production frontend build.
+2. Confirm the first persistent CRUD entity and its role matrix.
+3. Start SCN-01 with dependency-graph validation and golden impact fixtures.

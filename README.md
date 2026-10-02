@@ -52,3 +52,14 @@ npm run build
 ```
 
 The default SQLite database is for local development only. No operational or customer data belongs in this repository.
+
+## Production configuration
+
+Copy `backend/.env.example` into the deployment platform's secret/configuration system; Django does
+not load that file automatically. Production must set `DJANGO_DEBUG=false`, a long random
+`DJANGO_SECRET_KEY`, explicit allowed hosts and HTTPS origins, and a production database when one is
+selected. With debug disabled, HTTPS redirect, secure cookies, and HSTS are enabled.
+
+The main application and topology/event APIs require an authenticated Django session. Registration
+is rate-limited and creates Viewer accounts; decide whether administrator approval or email
+verification is required before a shared deployment.

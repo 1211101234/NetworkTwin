@@ -1,0 +1,67 @@
+<section class="register-shell" aria-labelledby="register-heading">
+  <div class="register-copy">
+    <p class="eyebrow">Create your workspace account</p>
+    <h1 id="register-heading">Join the Network Twin.</h1>
+    <p>
+      Register for secure access to the operational twin. New accounts begin with read-only Viewer
+      access.
+    </p>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <label>
+      <span>User ID</span>
+      <input type="text" formControlName="username" autocomplete="username" maxlength="150" />
+      @if (form.controls.username.touched && form.controls.username.hasError('required')) {
+        <small>Enter a User ID.</small>
+      } @else if (form.controls.username.touched && form.controls.username.hasError('duplicate')) {
+        <small>This User ID is already registered.</small>
+      }
+    </label>
+
+    <label>
+      <span>Password</span>
+      <input
+        type="password"
+        formControlName="password"
+        autocomplete="new-password"
+        maxlength="128"
+      />
+      <span
+        class="strength-meter"
+        [class]="'strength-meter strength-' + passwordStrength().toLowerCase()"
+        role="status"
+        aria-live="polite"
+      >
+        <span aria-hidden="true"></span><span aria-hidden="true"></span
+        ><span aria-hidden="true"></span>
+        <strong>{{ passwordStrength() }}</strong>
+      </span>
+      @if (form.controls.password.touched && form.controls.password.invalid) {
+        <small>Password needs 8+ characters, one number, and one special character.</small>
+      }
+    </label>
+
+    <label>
+      <span>Confirm password</span>
+      <input
+        type="password"
+        formControlName="confirmPassword"
+        autocomplete="new-password"
+        maxlength="128"
+      />
+      @if (form.controls.confirmPassword.touched && !passwordsMatch()) {
+        <small>Passwords do not match.</small>
+      }
+    </label>
+
+    @if (error()) {
+      <p class="form-error" role="alert">{{ error() }}</p>
+    }
+
+    <button type="submit" [disabled]="form.invalid || !passwordsMatch() || submitting()">
+      {{ submitting() ? 'Creating account…' : 'Create account' }}
+    </button>
+    <a routerLink="/login">Already registered? Sign in</a>
+  </form>
+</section>

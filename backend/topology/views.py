@@ -4,6 +4,7 @@ from collections.abc import Iterator
 from django.http import StreamingHttpResponse
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from network_twin_simulation import generate_event_log, generate_topology
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -16,6 +17,8 @@ from topology.serializers import (
 
 
 class TopologyView(APIView):
+    permission_classes = [IsAuthenticated]
+
     @extend_schema(
         parameters=[TopologyQuerySerializer],
         responses={200: TopologySerializer},
@@ -34,6 +37,8 @@ class TopologyView(APIView):
 
 
 class EventLogView(APIView):
+    permission_classes = [IsAuthenticated]
+
     @extend_schema(
         parameters=[TopologyQuerySerializer],
         responses={200: SimulationEventSerializer(many=True)},
@@ -51,6 +56,8 @@ class EventLogView(APIView):
 
 
 class EventStreamView(APIView):
+    permission_classes = [IsAuthenticated]
+
     @extend_schema(
         parameters=[
             TopologyQuerySerializer,

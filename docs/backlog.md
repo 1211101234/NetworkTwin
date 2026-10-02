@@ -6,7 +6,7 @@ Status: `DONE`, `ACTIVE`, `NEXT`, `LATER`, `GATED`.
 | --- | --- | --- | --- | --- | --- |
 | FND-01 | Repository and runnable Angular/Django skeleton | 0 | Must | DONE | Builds, tests, live health response |
 | FND-02 | Architecture, ADRs, budgets, licences, OpenAPI | 0 | Must | DONE | Documents reviewed and schema validates |
-| FND-03 | CI pipeline for chosen repository host | 0 | Should | NEXT | Clean runner executes all checks |
+| FND-03 | CI pipeline for chosen repository host | 0 | Should | ACTIVE | Workflow added; clean GitHub run pending |
 | ST-01 | Deterministic hierarchy generator | 1 | Must | DONE | Same seed returns identical assets/routes |
 | ST-02 | Versioned topology endpoint | 1 | Must | DONE | Contract, validation, and API tests pass |
 | ST-03 | Kuala Lumpur 2D map with typed layers | 1 | Must | DONE | Assets/routes render and assets are selectable |
@@ -18,7 +18,7 @@ Status: `DONE`, `ACTIVE`, `NEXT`, `LATER`, `GATED`.
 | LIVE-01 | Versioned event envelope and event log | 2 | Must | DONE | Schema and ordering tests pass |
 | LIVE-02 | Deterministic fault/recovery simulator | 2 | Must | DONE | Same seed produces same ordered log |
 | LIVE-03 | Resumable SSE transport | 2 | Must | DONE | Reconnect test proves no loss/duplication |
-| LIVE-04 | Technician movement | 2 | Should | LATER | Position follows replay clock |
+| LIVE-04 | Technician movement | 2 | Should | DONE | Position follows replay clock and resets deterministically |
 | LIVE-05 | Timeline, speed, pause, and rewind | 2 | Should | DONE | Controls reproduce expected state |
 | SCN-01 | Dependency graph and impact propagation | 3 | Must | LATER | Golden fixture results pass |
 | SCN-02 | Flood scenario | 3 | Must | LATER | Seeded scenario replay and impact report |
