@@ -122,6 +122,40 @@ class DependencyImpactSerializer(serializers.Serializer):
     )
 
 
+class FloodScenarioQuerySerializer(TopologyQuerySerializer):
+    scenario_seed = serializers.IntegerField(default=7, min_value=0, max_value=2_147_483_647)
+    severity = serializers.ChoiceField(choices=("minor", "moderate", "severe"), default="moderate")
+
+
+class FloodScenarioAssetSerializer(serializers.Serializer):
+    id = serializers.CharField()
+    type = serializers.ChoiceField(choices=("exchange", "cabinet", "distribution-point", "premise"))
+    name = serializers.CharField()
+    position = PositionSerializer()
+
+
+class FloodScenarioSerializer(serializers.Serializer):
+    scenarioSeed = serializers.IntegerField(source="scenario_seed")  # noqa: N815
+    severity = serializers.ChoiceField(choices=("minor", "moderate", "severe"))
+    centre = PositionSerializer()
+    radiusKm = serializers.FloatField(source="radius_km")  # noqa: N815
+    boundary = PositionSerializer(many=True)
+    directAssets = FloodScenarioAssetSerializer(source="direct_assets", many=True)  # noqa: N815
+    downstreamAssets = FloodScenarioAssetSerializer(  # noqa: N815
+        source="downstream_assets", many=True
+    )
+    directAssetCount = serializers.IntegerField(source="direct_asset_count")  # noqa: N815
+    downstreamAssetCount = serializers.IntegerField(  # noqa: N815
+        source="downstream_asset_count"
+    )
+    totalImpactedAssetCount = serializers.IntegerField(  # noqa: N815
+        source="total_impacted_asset_count"
+    )
+    affectedPremiseCount = serializers.IntegerField(  # noqa: N815
+        source="affected_premise_count"
+    )
+
+
 class AssetStatusPayloadSerializer(serializers.Serializer):
     assetId = serializers.CharField()  # noqa: N815
     previousStatus = serializers.ChoiceField(  # noqa: N815

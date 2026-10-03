@@ -11,13 +11,14 @@ import {
   output,
 } from '@angular/core';
 import { Layer, PickingInfo, Position as DeckPosition } from '@deck.gl/core';
-import { ColumnLayer, PathLayer, ScatterplotLayer } from '@deck.gl/layers';
+import { ColumnLayer, PathLayer, PolygonLayer, ScatterplotLayer } from '@deck.gl/layers';
 import { MapLibreOverlay } from '@deck.gl/maplibre';
 import { Map as MapLibreMap, NavigationControl, setWorkerUrl } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import mapLibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
 
 import {
+  FloodScenario,
   NetworkAsset,
   NetworkRoute,
   Technician,
@@ -38,6 +39,7 @@ export class NetworkMap implements AfterViewInit, OnChanges, OnDestroy {
   readonly topology = input.required<TopologySnapshot>();
   readonly viewMode = input.required<TwinViewMode>();
   readonly technicians = input<readonly Technician[]>([]);
+  readonly floodScenario = input<FloodScenario | null>(null);
   readonly assetSelected = output<NetworkAsset>();
 
   @ViewChild('mapContainer', { static: true })
@@ -46,6 +48,8 @@ export class NetworkMap implements AfterViewInit, OnChanges, OnDestroy {
   private map?: MapLibreMap;
   private overlay?: MapLibreOverlay;
   private currentZoom = 13.25;
+  private floodDirectIds = new Set<string>();
+  private floodDownstreamIds = new Set<string>();
 
   ngAfterViewInit(): void {
     this.map = new MapLibreMap({
@@ -63,7 +67,13 @@ export class NetworkMap implements AfterViewInit, OnChanges, OnDestroy {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if ((changes['topology'] || changes['viewMode'] || changes['technicians']) && this.overlay) {
+    if (
+      (changes['topology'] ||
+        changes['viewMode'] ||
+        changes['technicians'] ||
+        changes['floodScenario']) &&
+      this.overlay
+    ) {
       this.overlay.setProps({ layers: this.createLayers() });
     }
     if (changes['viewMode'] && this.map) {
@@ -88,6 +98,24 @@ export class NetworkMap implements AfterViewInit, OnChanges, OnDestroy {
     const routes = topology.routes.filter(
       (route) => visibleIds.has(route.sourceAssetId) && visibleIds.has(route.targetAssetId),
     );
+    const floodScenario = this.floodScenario();
+    this.floodDirectIds = new Set(floodScenario?.directAssets.map((asset) => asset.id) ?? []);
+    this.floodDownstreamIds = new Set(
+      floodScenario?.downstreamAssets.map((asset) => asset.id) ?? [],
+    );
+    const floodLayer = new PolygonLayer<readonly DeckPosition[]>({
+      id: 'flood-boundary',
+      data: floodScenario
+        ? [floodScenario.boundary.map(({ longitude, latitude }) => [longitude, latitude])]
+        : [],
+      getPolygon: (polygon) => polygon,
+      getFillColor: [14, 165, 233, 75],
+      getLineColor: [56, 189, 248, 230],
+      getLineWidth: 3,
+      lineWidthMinPixels: 2,
+      filled: true,
+      stroked: true,
+    });
     const routeLayer = new PathLayer<NetworkRoute>({
       id: 'network-routes',
       data: routes,
@@ -122,6 +150,7 @@ export class NetworkMap implements AfterViewInit, OnChanges, OnDestroy {
     });
     if (this.viewMode() === '3d') {
       return [
+        floodLayer,
         routeLayer,
         technicianRouteLayer,
         new ColumnLayer<NetworkAsset>({
@@ -143,6 +172,7 @@ export class NetworkMap implements AfterViewInit, OnChanges, OnDestroy {
       ];
     }
     return [
+      floodLayer,
       routeLayer,
       technicianRouteLayer,
       new ScatterplotLayer<NetworkAsset>({
@@ -206,6 +236,12 @@ export class NetworkMap implements AfterViewInit, OnChanges, OnDestroy {
   }
 
   private colourFor(asset: NetworkAsset): [number, number, number, number] {
+    if (this.floodDirectIds.has(asset.id)) {
+      return [239, 68, 68, 245];
+    }
+    if (this.floodDownstreamIds.has(asset.id)) {
+      return [249, 115, 22, 235];
+    }
     const colourByType: Record<NetworkAsset['type'], [number, number, number, number]> = {
       exchange: [251, 191, 36, 235],
       cabinet: [56, 189, 248, 225],

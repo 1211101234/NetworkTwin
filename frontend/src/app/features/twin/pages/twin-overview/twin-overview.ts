@@ -9,6 +9,8 @@ import {
   AssetStatus,
   AssetType,
   DependencyImpact,
+  FloodScenario,
+  FloodSeverity,
   NetworkAsset,
   PlaybackSpeed,
   TopologyProfile,
@@ -45,6 +47,9 @@ export class TwinOverview {
   protected readonly impact = signal<DependencyImpact | null>(null);
   protected readonly impactLoading = signal(false);
   protected readonly impactError = signal<string | null>(null);
+  protected readonly floodScenario = signal<FloodScenario | null>(null);
+  protected readonly floodLoading = signal(false);
+  protected readonly floodError = signal<string | null>(null);
   protected readonly topology = this.store.selectSignal(twinFeature.selectTopology);
   protected readonly visibleTopology = this.store.selectSignal(selectVisibleTopology);
   protected readonly topologyError = this.store.selectSignal(twinFeature.selectError);
@@ -68,6 +73,8 @@ export class TwinOverview {
     twinFeature.selectSimulationTimeSeconds,
   );
   protected readonly queryControl = new FormControl('', { nonNullable: true });
+  protected readonly scenarioSeedControl = new FormControl(7, { nonNullable: true });
+  protected readonly floodSeverity = signal<FloodSeverity>('moderate');
   protected readonly assetTypes: readonly { type: AssetType; label: string }[] = [
     { type: 'exchange', label: 'Exchanges' },
     { type: 'cabinet', label: 'Cabinets' },
@@ -97,6 +104,7 @@ export class TwinOverview {
   protected loadTopology(seed = 20260929, profile: TopologyProfile = 'demo'): void {
     this.impact.set(null);
     this.impactError.set(null);
+    this.resetFloodScenario();
     this.store.dispatch(TwinActions.loadTopology({ seed, profile }));
   }
 
@@ -130,6 +138,43 @@ export class TwinOverview {
           this.impactLoading.set(false);
         },
       });
+  }
+
+  protected runFloodScenario(): void {
+    const topology = this.topology();
+    if (!topology || this.floodLoading()) return;
+
+    const scenarioSeed = Math.max(0, Math.trunc(this.scenarioSeedControl.value));
+    this.scenarioSeedControl.setValue(scenarioSeed, { emitEvent: false });
+    this.floodLoading.set(true);
+    this.floodError.set(null);
+    this.topologyService
+      .getFloodScenario(
+        { seed: topology.seed, profile: this.profile() },
+        scenarioSeed,
+        this.floodSeverity(),
+      )
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (scenario) => {
+          this.floodScenario.set(scenario);
+          this.floodLoading.set(false);
+        },
+        error: () => {
+          this.floodError.set('The flood scenario could not be generated.');
+          this.floodLoading.set(false);
+        },
+      });
+  }
+
+  protected resetFloodScenario(): void {
+    this.floodScenario.set(null);
+    this.floodError.set(null);
+    this.floodLoading.set(false);
+  }
+
+  protected setFloodSeverity(event: Event): void {
+    this.floodSeverity.set((event.target as HTMLSelectElement).value as FloodSeverity);
   }
 
   protected toggleAssetType(assetType: AssetType): void {

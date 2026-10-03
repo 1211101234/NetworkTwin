@@ -21,8 +21,8 @@ Status: `DONE`, `ACTIVE`, `NEXT`, `LATER`, `GATED`.
 | LIVE-04 | Technician movement                             | 2     | Should   | DONE   | Position follows replay clock and resets deterministically |
 | LIVE-05 | Timeline, speed, pause, and rewind              | 2     | Should   | DONE   | Controls reproduce expected state                          |
 | SCN-01  | Dependency graph and impact propagation         | 3     | Must     | DONE   | Golden fixture and authenticated API tests pass            |
-| SCN-02  | Flood scenario                                  | 3     | Must     | NEXT   | Seeded scenario replay and impact report                   |
-| SCN-03  | Cabinet cluster failure                         | 3     | Must     | LATER  | Seeded scenario replay and impact report                   |
+| SCN-02  | Flood scenario                                  | 3     | Must     | DONE   | Golden fixture, API, map boundary, and impact report pass  |
+| SCN-03  | Cabinet cluster failure                         | 3     | Must     | NEXT   | Seeded scenario replay and impact report                   |
 | SCN-04  | Planned outage / placement comparison           | 3     | Must     | LATER  | Before/after comparison is reproducible                    |
 | INT-01  | Source adapter contracts and contract tests     | 4     | Must     | LATER  | Synthetic adapter can be swapped unchanged                 |
 | INT-02  | Security, privacy, and sanctioned-data plan     | 4     | Must     | LATER  | Stakeholder approval recorded                              |

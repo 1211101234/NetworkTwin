@@ -38,4 +38,31 @@ describe('TopologyService', () => {
       impactedAssets: [],
     });
   });
+
+  it('requests a seeded flood scenario for the selected topology', () => {
+    service.getFloodScenario({ seed: 42, profile: 'demo' }, 7, 'severe').subscribe();
+
+    const request = http.expectOne(
+      (candidate) =>
+        candidate.url === '/api/v1/topology/scenarios/flood/' &&
+        candidate.params.get('seed') === '42' &&
+        candidate.params.get('profile') === 'demo' &&
+        candidate.params.get('scenario_seed') === '7' &&
+        candidate.params.get('severity') === 'severe',
+    );
+    expect(request.request.method).toBe('GET');
+    request.flush({
+      scenarioSeed: 7,
+      severity: 'severe',
+      centre: { latitude: 3.1, longitude: 101.7 },
+      radiusKm: 0.62,
+      boundary: [],
+      directAssets: [],
+      downstreamAssets: [],
+      directAssetCount: 0,
+      downstreamAssetCount: 0,
+      totalImpactedAssetCount: 0,
+      affectedPremiseCount: 0,
+    });
+  });
 });

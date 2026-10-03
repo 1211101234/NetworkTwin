@@ -4,6 +4,7 @@ from network_twin_simulation import (
     calculate_dependency_impact,
     config_for_profile,
     generate_event_log,
+    generate_flood_scenario,
     generate_topology,
     replay_asset_statuses,
 )
@@ -132,3 +133,51 @@ def test_dependency_impact_rejects_unknown_source() -> None:
         assert str(error) == "Unknown source asset: missing-asset"
     else:
         raise AssertionError("Unknown sources must be rejected")
+
+
+def test_flood_scenario_is_deterministic_and_propagates_dependencies() -> None:
+    topology = generate_topology(config_for_profile("demo", seed=42))
+
+    first = generate_flood_scenario(topology, scenario_seed=7, severity="moderate")
+    second = generate_flood_scenario(topology, scenario_seed=7, severity="moderate")
+
+    assert first == second
+    assert first.boundary[0] == first.boundary[-1]
+    assert len(first.boundary) == 33
+    assert [asset.id for asset in first.direct_assets] == [
+        "cabinet-003",
+        "distribution-point-0011",
+        "premise-00051",
+        "premise-00052",
+        "premise-00055",
+        "distribution-point-0012",
+        "premise-00056",
+        "premise-00057",
+        "premise-00058",
+        "premise-00059",
+        "premise-00060",
+    ]
+    assert (
+        first.direct_asset_count,
+        first.downstream_asset_count,
+        first.total_impacted_asset_count,
+        first.affected_premise_count,
+    ) == (11, 14, 25, 20)
+    assert first.total_impacted_asset_count == (
+        first.direct_asset_count + first.downstream_asset_count
+    )
+    assert not (
+        {asset.id for asset in first.direct_assets}
+        & {asset.id for asset in first.downstream_assets}
+    )
+
+
+def test_flood_severity_expands_the_direct_impact_area() -> None:
+    topology = generate_topology(config_for_profile("demo", seed=42))
+
+    minor = generate_flood_scenario(topology, scenario_seed=7, severity="minor")
+    severe = generate_flood_scenario(topology, scenario_seed=7, severity="severe")
+
+    assert minor.centre == severe.centre
+    assert minor.radius_km < severe.radius_km
+    assert minor.direct_asset_count <= severe.direct_asset_count

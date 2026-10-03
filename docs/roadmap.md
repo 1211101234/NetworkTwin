@@ -27,7 +27,7 @@
 | 0 — Foundations           | 29 Sep–16 Oct 2026      | Runnable skeleton, decisions, contracts, budgets       | Clean builds, health/API docs, architecture review | Complete early                             |
 | 1 — Static Twin           | 19 Oct–11 Dec 2026      | Synthetic topology in interactive 2D and initial 3D    | Mini-demo and measured performance report          | Complete early                             |
 | 2 — Live Twin             | 14 Dec 2026–22 Jan 2027 | Replayable faults, recoveries, and technician movement | HOU demo rehearsal passes twice                    | Implementation complete; rehearsal remains |
-| 3 — Scenario Engine       | 25 Jan–19 Mar 2027      | Impact propagation and three headline scenarios        | Seeded expected-result tests and comparison demo   | 25% — impact propagation complete          |
+| 3 — Scenario Engine       | 25 Jan–19 Mar 2027      | Impact propagation and three headline scenarios        | Seeded expected-result tests and comparison demo   | 50% — flood scenario complete              |
 | 4 — Integration Readiness | 22 Mar–16 Apr 2027      | Approved adapter and security design                   | Integration specification review                   | Not started                                |
 | 5 — Extensions            | Proposal-dependent      | Individually approved pilots                           | Separate pilot gate per extension                  | Gated                                      |
 
@@ -184,6 +184,6 @@ percentage until the scope and repository host are confirmed.
 
 ## Immediate next three outcomes
 
-1. Implement SCN-02 as a seeded geographic flood scenario and impact report.
+1. Implement SCN-03 as a seeded cabinet-cluster failure scenario and impact report.
 2. Confirm the first persistent CRUD entity and its role matrix.
 3. Define the production account-approval and password-recovery policy.

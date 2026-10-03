@@ -6,6 +6,7 @@ from drf_spectacular.utils import OpenApiParameter, extend_schema
 from network_twin_simulation import (
     calculate_dependency_impact,
     generate_event_log,
+    generate_flood_scenario,
     generate_topology,
 )
 from rest_framework import status
@@ -16,11 +17,33 @@ from rest_framework.views import APIView
 
 from topology.serializers import (
     DependencyImpactSerializer,
+    FloodScenarioQuerySerializer,
+    FloodScenarioSerializer,
     ImpactQuerySerializer,
     SimulationEventSerializer,
     TopologyQuerySerializer,
     TopologySerializer,
 )
+
+
+class FloodScenarioView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        parameters=[FloodScenarioQuerySerializer],
+        responses={200: FloodScenarioSerializer},
+        summary="Generate a seeded geographic flood scenario and propagated impact",
+    )
+    def get(self, request: Request) -> Response:
+        query = FloodScenarioQuerySerializer(data=request.query_params)
+        query.is_valid(raise_exception=True)
+        topology = generate_topology(query.topology_config())
+        scenario = generate_flood_scenario(
+            topology,
+            scenario_seed=int(query.validated_data["scenario_seed"]),
+            severity=query.validated_data["severity"],
+        )
+        return Response(FloodScenarioSerializer(scenario).data)
 
 
 class DependencyImpactView(APIView):

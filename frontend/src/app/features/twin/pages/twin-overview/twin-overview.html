@@ -183,6 +183,55 @@
     </ol>
   </section>
 
+  <section class="scenario" aria-labelledby="scenario-heading">
+    <div>
+      <p class="eyebrow">Scenario engine</p>
+      <h3 id="scenario-heading">Seeded geographic flood</h3>
+      <p>Compare direct inundation with the downstream services it disrupts.</p>
+    </div>
+    <div class="scenario-actions">
+      <label>
+        <span>Severity</span>
+        <select [value]="floodSeverity()" (change)="setFloodSeverity($event)">
+          <option value="minor">Minor</option>
+          <option value="moderate">Moderate</option>
+          <option value="severe">Severe</option>
+        </select>
+      </label>
+      <label>
+        <span>Scenario seed</span>
+        <input [formControl]="scenarioSeedControl" type="number" min="0" step="1" />
+      </label>
+      <button type="button" (click)="runFloodScenario()" [disabled]="floodLoading()">
+        <i class="pi pi-bolt" aria-hidden="true"></i>
+        {{ floodLoading() ? 'Running…' : 'Run scenario' }}
+      </button>
+      @if (floodScenario()) {
+        <button class="secondary" type="button" (click)="resetFloodScenario()">
+          <i class="pi pi-times" aria-hidden="true"></i> Clear
+        </button>
+      }
+    </div>
+    @if (floodScenario(); as scenario) {
+      <div class="scenario-metrics" aria-live="polite">
+        <span
+          ><strong>{{ scenario.directAssetCount }}</strong> directly flooded</span
+        >
+        <span
+          ><strong>{{ scenario.downstreamAssetCount }}</strong> downstream</span
+        >
+        <span
+          ><strong>{{ scenario.affectedPremiseCount }}</strong> premises affected</span
+        >
+        <span
+          ><strong>{{ scenario.radiusKm }} km</strong> radius</span
+        >
+      </div>
+    } @else if (floodError()) {
+      <p class="scenario-error" role="alert">{{ floodError() }}</p>
+    }
+  </section>
+
   <div class="workspace">
     <div class="map-panel">
       @if (visibleTopology(); as snapshot) {
@@ -190,6 +239,7 @@
           [topology]="snapshot"
           [viewMode]="viewMode()"
           [technicians]="technicians()"
+          [floodScenario]="floodScenario()"
           (assetSelected)="selectAsset($event)"
         />
       } @else if (topologyError()) {
@@ -209,6 +259,10 @@
         <span class="exchange">Exchange</span><span class="cabinet">Cabinet</span
         ><span class="point">Distribution point</span><span class="premise">Premise</span
         ><span class="technician">Technician</span>
+        @if (floodScenario()) {
+          <span class="direct-flood">Direct flood</span
+          ><span class="downstream-impact">Downstream</span>
+        }
       </div>
     </div>
 

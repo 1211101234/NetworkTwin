@@ -538,6 +538,89 @@ paths:
                 type: object
                 additionalProperties: {}
           description: ''
+  /api/v1/topology/scenarios/flood/:
+    get:
+      operationId: v1_topology_scenarios_flood_retrieve
+      summary: Generate a seeded geographic flood scenario and propagated impact
+      parameters:
+      - in: query
+        name: cabinet_count
+        schema:
+          type: integer
+          maximum: 50
+          minimum: 1
+          default: 6
+      - in: query
+        name: distribution_points_per_cabinet
+        schema:
+          type: integer
+          maximum: 20
+          minimum: 1
+          default: 4
+      - in: query
+        name: premises_per_distribution_point
+        schema:
+          type: integer
+          maximum: 50
+          minimum: 1
+          default: 5
+      - in: query
+        name: profile
+        schema:
+          enum:
+          - demo
+          - 1k
+          - 5k
+          - 10k
+          - custom
+          type: string
+          default: demo
+          minLength: 1
+        description: |-
+          * `demo` - demo
+          * `1k` - 1k
+          * `5k` - 5k
+          * `10k` - 10k
+          * `custom` - custom
+      - in: query
+        name: scenario_seed
+        schema:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          default: 7
+      - in: query
+        name: seed
+        schema:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          default: 20260929
+      - in: query
+        name: severity
+        schema:
+          enum:
+          - minor
+          - moderate
+          - severe
+          type: string
+          default: moderate
+          minLength: 1
+        description: |-
+          * `minor` - minor
+          * `moderate` - moderate
+          * `severe` - severe
+      tags:
+      - v1
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FloodScenario'
+          description: ''
 components:
   schemas:
     Asset:
@@ -643,6 +726,66 @@ components:
       - impactedAssets
       - sourceAssetId
       - sourceAssetType
+    FloodScenario:
+      type: object
+      properties:
+        scenarioSeed:
+          type: integer
+        severity:
+          $ref: '#/components/schemas/SeverityEnum'
+        centre:
+          $ref: '#/components/schemas/Position'
+        radiusKm:
+          type: number
+          format: double
+        boundary:
+          type: array
+          items:
+            $ref: '#/components/schemas/Position'
+        directAssets:
+          type: array
+          items:
+            $ref: '#/components/schemas/FloodScenarioAsset'
+        downstreamAssets:
+          type: array
+          items:
+            $ref: '#/components/schemas/FloodScenarioAsset'
+        directAssetCount:
+          type: integer
+        downstreamAssetCount:
+          type: integer
+        totalImpactedAssetCount:
+          type: integer
+        affectedPremiseCount:
+          type: integer
+      required:
+      - affectedPremiseCount
+      - boundary
+      - centre
+      - directAssetCount
+      - directAssets
+      - downstreamAssetCount
+      - downstreamAssets
+      - radiusKm
+      - scenarioSeed
+      - severity
+      - totalImpactedAssetCount
+    FloodScenarioAsset:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          $ref: '#/components/schemas/AssetTypeEnum'
+        name:
+          type: string
+        position:
+          $ref: '#/components/schemas/Position'
+      required:
+      - id
+      - name
+      - position
+      - type
     ImpactedAsset:
       type: object
       properties:
@@ -729,6 +872,16 @@ components:
       - path
       - sourceAssetId
       - targetAssetId
+    SeverityEnum:
+      enum:
+      - minor
+      - moderate
+      - severe
+      type: string
+      description: |-
+        * `minor` - minor
+        * `moderate` - moderate
+        * `severe` - severe
     SimulationEvent:
       type: object
       properties:
