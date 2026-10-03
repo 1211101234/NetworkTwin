@@ -6,6 +6,12 @@ from network_twin_simulation.events import (
     generate_event_log,
     replay_asset_statuses,
 )
+from network_twin_simulation.flood import (
+    FloodScenario,
+    FloodScenarioAsset,
+    FloodSeverity,
+    generate_flood_scenario,
+)
 from network_twin_simulation.generator import GeneratorConfig, generate_topology
 from network_twin_simulation.impact import (
     DependencyImpact,
@@ -25,6 +31,9 @@ __all__ = [
     "AssetStatusPayload",
     "DependencyImpact",
     "EventType",
+    "FloodScenario",
+    "FloodScenarioAsset",
+    "FloodSeverity",
     "GeneratorConfig",
     "ImpactedAsset",
     "Position",
@@ -36,6 +45,7 @@ __all__ = [
     "calculate_dependency_impact",
     "config_for_profile",
     "generate_event_log",
+    "generate_flood_scenario",
     "generate_topology",
     "replay_asset_statuses",
 ]

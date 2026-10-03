@@ -5,6 +5,8 @@ import { Observable } from 'rxjs';
 import {
   AssetId,
   DependencyImpact,
+  FloodScenario,
+  FloodSeverity,
   TopologyProfile,
   TopologySnapshot,
 } from '../models/network.models';
@@ -29,6 +31,17 @@ export class TopologyService {
   getDependencyImpact(request: TopologyRequest, assetId: AssetId): Observable<DependencyImpact> {
     const params = this.requestParams(request).set('asset_id', assetId);
     return this.http.get<DependencyImpact>('/api/v1/topology/impact/', { params });
+  }
+
+  getFloodScenario(
+    request: TopologyRequest,
+    scenarioSeed: number,
+    severity: FloodSeverity,
+  ): Observable<FloodScenario> {
+    const params = this.requestParams(request)
+      .set('scenario_seed', scenarioSeed)
+      .set('severity', severity);
+    return this.http.get<FloodScenario>('/api/v1/topology/scenarios/flood/', { params });
   }
 
   private requestParams(request: TopologyRequest): HttpParams {

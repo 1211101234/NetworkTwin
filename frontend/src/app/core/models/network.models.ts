@@ -54,6 +54,29 @@ export interface DependencyImpact {
   readonly impactedAssets: readonly ImpactedAsset[];
 }
 
+export type FloodSeverity = 'minor' | 'moderate' | 'severe';
+
+export interface FloodScenarioAsset {
+  readonly id: AssetId;
+  readonly type: AssetType;
+  readonly name: string;
+  readonly position: GeoPosition;
+}
+
+export interface FloodScenario {
+  readonly scenarioSeed: number;
+  readonly severity: FloodSeverity;
+  readonly centre: GeoPosition;
+  readonly radiusKm: number;
+  readonly boundary: readonly GeoPosition[];
+  readonly directAssets: readonly FloodScenarioAsset[];
+  readonly downstreamAssets: readonly FloodScenarioAsset[];
+  readonly directAssetCount: number;
+  readonly downstreamAssetCount: number;
+  readonly totalImpactedAssetCount: number;
+  readonly affectedPremiseCount: number;
+}
+
 export interface AssetStatusEventPayload {
   readonly assetId: AssetId;
   readonly previousStatus: AssetStatus;

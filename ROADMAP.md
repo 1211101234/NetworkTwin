@@ -2,7 +2,7 @@
 
 > Open this file in VS Code and use **Open Preview** (`⌘⇧V`) for the dashboard view.
 >
-> Last updated: 3 October 2026 · Core delivery: **17 of 22 items complete (77%)**
+> Last updated: 3 October 2026 · Core delivery: **18 of 22 items complete (82%)**
 
 ## At a glance
 
@@ -11,13 +11,13 @@
 | 0 — Foundations           | 3/3 · 100% | Complete    | Full GitHub CI pipeline verified                         |
 | 1 — Static Twin           | 8/8 · 100% | Complete    | 2D/3D topology verified at 9,997 assets                  |
 | 2 — Live Twin             | 5/5 · 100% | Complete    | Faults, recovery, and technicians share one replay clock |
-| 3 — Scenario Engine       |  1/4 · 25% | Active      | Dependency impact complete; flood scenario next          |
+| 3 — Scenario Engine       |  2/4 · 50% | Active      | Flood impact complete; cabinet-cluster failure next      |
 | 4 — Integration Readiness |   0/2 · 0% | Planned     | Adapter contracts and security plan                      |
 | 5 — Optional Extensions   |      Gated | Not counted | Separate approval required for each pilot                |
 
 ```text
-Core roadmap  [███████████████░░░░░] 77%
-Current phase [█████░░░░░░░░░░░░░░░] 25%
+Core roadmap  [████████████████░░░░] 82%
+Current phase [██████████░░░░░░░░░░] 50%
 ```
 
 ## Current focus
@@ -26,7 +26,8 @@ Current phase [█████░░░░░░░░░░░░░░░] 25%
 - [x] Add registration, authentication/session, protected routing, and the role foundation.
 - [ ] Confirm the first persistent CRUD entity; network assets are recommended.
 - [x] **SCN-01:** Deterministic dependency graph and downstream impact propagation.
-- [ ] **SCN-02:** Add the seeded geographic flood scenario — next.
+- [x] **SCN-02:** Seeded geographic flood scenario and propagated impact report.
+- [ ] **SCN-03:** Add the seeded cabinet-cluster failure scenario — next.
 
 ## Completed
 
@@ -73,7 +74,7 @@ included in the 22-item core percentage until their scope is approved.
 ### Phase 3 — Scenario Engine
 
 - [x] Dependency graph and downstream impact propagation.
-- [ ] Seeded flood scenario.
+- [x] Seeded flood scenario.
 - [ ] Seeded cabinet-cluster failure scenario.
 - [ ] Planned-outage or placement comparison.
 
@@ -90,9 +91,11 @@ included in the 22-item core percentage until their scope is approved.
 
 ## Latest verified evidence
 
-- Backend: **19 tests passed** (plus 3 password-validation subtests).
-- Simulator: **8 tests passed**.
-- Frontend: **15 tests passed**.
+- Backend: **22 tests passed** (plus 3 password-validation subtests).
+- Simulator: **10 tests passed**.
+- Frontend: **16 tests passed**.
+- Flood golden fixture covers deterministic geometry, severity expansion, direct-asset selection,
+  overlap removal, dependency propagation, and affected-premise totals.
 - Dependency-impact golden fixtures cover exchange, cabinet, distribution-point, premise, direct,
   transitive, empty, and unknown-source behavior.
 - Ruff, TypeScript, Django tests, OpenAPI validation, and the production Angular build pass in CI.

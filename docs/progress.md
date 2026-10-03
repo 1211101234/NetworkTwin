@@ -209,3 +209,31 @@
 1. Implement SCN-02 with a seeded flood boundary and reproducible affected-asset selection.
 2. Feed flooded source assets through the dependency-impact engine.
 3. Present direct and downstream flood impact in the map and scenario report.
+
+## 2026-10-03 — Seeded geographic flood scenario
+
+### Completed
+
+- Added deterministic circular flood geometry from topology seed, scenario seed, and severity.
+- Selected directly flooded infrastructure assets by geographic distance, then reused the SCN-01
+  dependency engine to calculate transitive impact without double-counting overlaps.
+- Added direct, downstream, total, and affected-premise totals to an authenticated
+  `/api/v1/topology/scenarios/flood/` endpoint and the generated OpenAPI contract.
+- Added severity and scenario-seed controls, loading/error/clear states, the flood boundary, direct
+  and downstream marker colours, map legend entries, and the scenario impact report.
+
+### Evidence
+
+- The golden demo fixture (topology seed 42, scenario seed 7, moderate severity) reports 11 directly
+  flooded assets, 14 downstream assets, 25 unique impacted assets, and 20 premises.
+- Simulator fixtures verify deterministic geometry, a closed 33-position boundary, overlap removal,
+  dependency propagation, and severity expansion.
+- Backend: 22 tests plus 3 password-validation subtests passing.
+- Simulator: 10 tests passing; frontend: 16 tests passing.
+- Ruff, Prettier, TypeScript, Django checks, migration checks, and OpenAPI validation pass.
+
+### Next
+
+1. Implement SCN-03 as a seeded cabinet-cluster failure and impact report.
+2. Add comparison-ready scenario result structure where SCN-04 needs before/after analysis.
+3. Confirm the first persistent CRUD entity and its role matrix.

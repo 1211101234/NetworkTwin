@@ -142,3 +142,56 @@ class DependencyImpactViewTests(APITestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class FloodScenarioViewTests(APITestCase):
+    def setUp(self) -> None:
+        self.user = get_user_model().objects.create_user(
+            username="scenario.viewer",
+            password="SafePass!9",
+        )
+        self.client.force_login(self.user)
+
+    def test_flood_scenario_is_reproducible_and_reports_propagated_impact(self) -> None:
+        query = {"profile": "demo", "seed": 42, "scenario_seed": 7, "severity": "moderate"}
+
+        first = self.client.get(reverse("flood-scenario"), query)
+        second = self.client.get(reverse("flood-scenario"), query)
+
+        self.assertEqual(first.status_code, status.HTTP_200_OK)
+        self.assertEqual(first.json(), second.json())
+        self.assertEqual(first.json()["scenarioSeed"], 7)
+        self.assertEqual(first.json()["severity"], "moderate")
+        self.assertEqual(len(first.json()["boundary"]), 33)
+        self.assertEqual(
+            [asset["id"] for asset in first.json()["directAssets"]],
+            [
+                "cabinet-003",
+                "distribution-point-0011",
+                "premise-00051",
+                "premise-00052",
+                "premise-00055",
+                "distribution-point-0012",
+                "premise-00056",
+                "premise-00057",
+                "premise-00058",
+                "premise-00059",
+                "premise-00060",
+            ],
+        )
+        self.assertEqual(first.json()["directAssetCount"], 11)
+        self.assertEqual(first.json()["downstreamAssetCount"], 14)
+        self.assertEqual(first.json()["totalImpactedAssetCount"], 25)
+        self.assertEqual(first.json()["affectedPremiseCount"], 20)
+
+    def test_flood_scenario_rejects_unknown_severity(self) -> None:
+        response = self.client.get(reverse("flood-scenario"), {"severity": "catastrophic"})
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_flood_scenario_requires_authentication(self) -> None:
+        self.client.logout()
+
+        response = self.client.get(reverse("flood-scenario"))
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
